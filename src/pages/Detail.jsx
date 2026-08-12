@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { OWNERS, REPOS, bySlug, CATEGORIES } from '../data/components.js'
 import { filesOf } from '../data/sources.js'
+import { previewUrl } from '../data/demos.js'
 import CodeView from '../components/CodeView.jsx'
 
 export default function Detail() {
@@ -13,6 +14,8 @@ export default function Detail() {
   const o = OWNERS[c.owner]
   const repoUrl = c.repo ? REPOS[c.repo] : null
   const catName = CATEGORIES.find((x) => x.id === c.cat)?.name || c.cat
+  const url = previewUrl(c)
+  const isDemo = !!url && !c.preview
 
   return (
     <>
@@ -65,19 +68,21 @@ export default function Detail() {
         </ul>
       )}
 
-      {c.preview && (
+      {url && (
         <>
           <div className="block-head">
             <h2>预览</h2>
-            <a className="btn" href={c.preview} target="_blank" rel="noreferrer">
+            <a className="btn" href={url} target="_blank" rel="noreferrer">
               新窗口打开
             </a>
           </div>
           <div className="frame-wrap">
-            <iframe src={c.preview} title={c.name} loading="lazy" />
+            <iframe src={url} title={c.name} loading="lazy" />
           </div>
           <div className="frame-note">
-            打包好的自包含产物,和原项目脱钩 —— 原项目改了这里不会自动跟着变。
+            {isDemo
+              ? `演示台 src-preview/demos/${c.slug}.jsx —— 直接 import library/ 里的源码,和下面这份是同一份。`
+              : '打包好的自包含产物,和原项目脱钩 —— 原项目改了这里不会自动跟着变。'}
           </div>
         </>
       )}

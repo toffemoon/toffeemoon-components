@@ -1,0 +1,63 @@
+/* 演示台的地基。
+   每个 demo 自己带 token,这里只负责铺一张纸和居中。
+   注意:这个文件跑在 iframe 里,和主站的 app.css 完全隔离,不会互相污染。 */
+
+* { box-sizing: border-box; }
+
+html, body, #stage { height: 100%; margin: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+               "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  background: var(--demo-bg, #121110);
+  color: var(--demo-fg, #ece6dd);
+  overflow: hidden;
+}
+
+/* 舞台:居中、留白、不滚动。组件想铺满就用 .stage--bleed */
+.stage {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  overflow: auto;
+}
+.stage--bleed { padding: 0; overflow: hidden; }
+.stage--top { align-items: flex-start; }
+
+/* 横向排开的几个变体 */
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.col { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+
+/* demo 里给变体打的小标签 */
+.lbl {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.42;
+  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  margin-bottom: 5px;
+  text-align: center;
+}
+.unit { display: flex; flex-direction: column; align-items: center; }
+
+.miss {
+  font-size: 13px;
+  opacity: 0.45;
+  text-align: center;
+  line-height: 1.7;
+  max-width: 40ch;
+  padding: 20px;
+}
+.miss code {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12px;
+  opacity: 0.8;
+}

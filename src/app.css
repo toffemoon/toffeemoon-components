@@ -245,6 +245,141 @@ a { color: inherit; text-decoration: none; }
   font-size: 10px;
 }
 
+/* ── 画廊 ───────────────────────────────────────────────────────── */
+
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  overflow: hidden;
+}
+.seg button {
+  font-family: var(--sans);
+  font-size: 12px;
+  padding: 5px 13px;
+  background: transparent;
+  border: 0;
+  color: var(--fg-faint);
+  cursor: pointer;
+}
+.seg button:hover { color: var(--fg-muted); }
+.seg button.on { background: var(--accent-soft); color: var(--fg); }
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
+}
+
+.gcard {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  overflow: hidden;
+  transition: border-color 140ms ease, transform 140ms ease;
+}
+.gcard:hover { border-color: #3a3330; transform: translateY(-1px); }
+
+.thumb {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: var(--bg-sunk);
+  border-bottom: 1px solid var(--line-soft);
+  overflow: hidden;
+}
+/* 演示台先按 2.5 倍尺寸排版,再整体缩到卡片里 ——
+   这样 demo 只需要写一套桌面布局,不用为缩略图另写小屏样式。 */
+.thumb iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 250%;
+  height: 250%;
+  border: 0;
+  transform-origin: top left;
+  transform: scale(0.4);
+}
+/* 画廊里的预览只是缩略图,点进详情页才交互 */
+.thumb-veil { position: absolute; inset: 0; }
+.thumb-hold {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg, transparent, transparent 7px,
+    rgba(255, 255, 255, 0.014) 7px, rgba(255, 255, 255, 0.014) 14px
+  );
+}
+
+.thumb-code {
+  position: absolute;
+  inset: 0;
+  padding: 12px 13px;
+  overflow: hidden;
+}
+.thumb-code pre {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  line-height: 1.52;
+  color: #6f675f;
+  white-space: pre;
+  overflow: hidden;
+}
+.thumb-code-fade {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 62%;
+  background: linear-gradient(transparent, var(--bg-sunk) 88%);
+}
+.thumb-code-tag {
+  position: absolute;
+  left: 13px;
+  bottom: 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--fg-faint);
+  letter-spacing: 0.02em;
+}
+.thumb-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--fg-faint);
+  font-size: 12px;
+}
+
+.gcard-body { padding: 12px 14px 12px; display: flex; flex-direction: column; flex: 1; }
+.gcard-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+.gcard-name { font-size: 13.5px; color: var(--fg); }
+.gcard-desc {
+  font-size: 12.5px;
+  color: var(--fg-muted);
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+.gcard-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 9px;
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--fg-faint);
+}
+
 /* ── 详情页 ─────────────────────────────────────────────────────── */
 
 .crumb {

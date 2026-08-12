@@ -15,7 +15,6 @@ export const REPOS = {
   flipwall: null, // 还没有远端 —— 2026-08-12 查:连本地 git 都没有
   carousel: 'https://github.com/toffemoon/card-carousel',
   muyan: 'https://github.com/toffemoon/muyan-bookshop',
-  s1000rr: 'https://github.com/yijiangj2025-prog/s1000rr-lean-lab', // 账号归属待确认
   tds: 'https://github.com/toffemoon/toffeemoon-design-system',
   ripple: 'https://github.com/toffemoon/ripple-site',
   aistory: 'https://github.com/toffemoon/ai-interactive-story',
@@ -91,19 +90,6 @@ export const COMPONENTS = [
       '糖沐立绘走 Y 轴 billboard。',
       '7 个镜头节点之间缓动:拖动环视、点击物件走近、Esc 回全景。',
       '动线验证原型,美术质感(Cycles 烘焙)未做。',
-    ],
-  },
-  {
-    slug: 's1000rr-lean-lab', cat: '3d-scene', name: 'S1000RR Lean Lab',
-    from: 's1000rr-lean-lab', repo: 's1000rr', owner: 'self',
-    deps: ['three'],
-    preview: null,
-    desc: 'BMW S 1000 RR 三维扫描模型的交互展示台,七个章节。完全离线自足,无 CDN。',
-    notes: [
-      'LEAN:压弯台,倾角上限从网格实测求解(左 43.4° / 右 44.4°)。',
-      'TEARDOWN:11 块拆解件动画。SECTION:XYZ 剖切扫描。FINISH:涂装 × 环境光 × 渲染模式。',
-      '模型压缩管线 80.6 MB → 10.8 MB。',
-      '预览没接:要 HTTP 服务才能 fetch .glb,且模型体积大,先不进这个库的 public/。',
     ],
   },
   {

@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CATEGORIES, COMPONENTS, OWNERS, byCategory } from '../data/components.js'
 import { stats, grep } from '../data/sources.js'
+import { previewUrl, liveCount } from '../data/demos.js'
+import Thumb from '../components/Thumb.jsx'
 
 const S = stats()
 
@@ -9,7 +12,26 @@ function OwnerTag({ owner }) {
   return <span className={'tag-owner o-' + o.tone}>{o.label}</span>
 }
 
-function Card({ c }) {
+function GalleryCard({ c }) {
+  return (
+    <Link className="gcard" to={`/c/${c.cat}/${c.slug}`}>
+      <Thumb c={c} />
+      <div className="gcard-body">
+        <div className="gcard-top">
+          <span className="gcard-name">{c.name}</span>
+          <OwnerTag owner={c.owner} />
+        </div>
+        <div className="gcard-desc">{c.desc}</div>
+        <div className="gcard-foot">
+          <span>{c.from}</span>
+          {previewUrl(c) && <span className="badge-live">活的</span>}
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+function ListCard({ c }) {
   return (
     <Link className="card" to={`/c/${c.cat}/${c.slug}`}>
       <div className="card-top">
@@ -19,7 +41,7 @@ function Card({ c }) {
       <div className="card-desc">{c.desc}</div>
       <div className="card-foot">
         <span>{c.from}</span>
-        {c.preview && <span className="badge-live">可预览</span>}
+        {previewUrl(c) && <span className="badge-live">活的</span>}
       </div>
     </Link>
   )
@@ -49,7 +71,7 @@ function SearchResults({ query }) {
           </div>
           <div className="grid">
             {nameHits.map((c) => (
-              <Card key={c.slug} c={c} />
+              <ListCard key={c.slug} c={c} />
             ))}
           </div>
         </div>
@@ -78,18 +100,21 @@ function SearchResults({ query }) {
 }
 
 export default function Index({ query }) {
+  const [view, setView] = useState('gallery')
+
   if (query.trim().length >= 2) return <SearchResults query={query} />
 
   const self = COMPONENTS.filter((c) => c.owner === 'self').length
-  const live = COMPONENTS.filter((c) => c.preview).length
+  const live = liveCount(COMPONENTS)
 
   return (
     <>
       <div className="page-head">
         <h1>Toffeemoon Components</h1>
         <p>
-          散在翻板墙、沐言书坊、Ripple、AI 互动故事、Yuqin portfolio 这些项目里的组件、动效和三维场景,
-          收在一处。左边按类看,或者直接搜源码内容 —— 找「我以前那个抖动是怎么写的」比翻仓库快。
+          散在翻板墙、沐言书坊、Ripple、AI 互动故事、Yuqin portfolio、YoRHa-A2
+          这些项目里的组件、动效和三维场景,收在一处。有演示台的直接在格子里跑,
+          没有的切一段源码,一屏扫下来就知道自己有什么。
         </p>
         <div className="stat-row">
           <div className="stat">
@@ -109,8 +134,21 @@ export default function Index({ query }) {
             <div className="k">自研</div>
           </div>
           <div className="stat">
-            <div className="v">{live}</div>
-            <div className="k">可实时预览</div>
+            <div className="v">
+              {live}
+              <span style={{ opacity: 0.4, fontSize: 14 }}>/{COMPONENTS.length}</span>
+            </div>
+            <div className="k">能跑起来看</div>
+          </div>
+          <div className="stat" style={{ marginLeft: 'auto', alignSelf: 'center' }}>
+            <div className="seg">
+              <button className={view === 'gallery' ? 'on' : ''} onClick={() => setView('gallery')}>
+                画廊
+              </button>
+              <button className={view === 'list' ? 'on' : ''} onClick={() => setView('list')}>
+                清单
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -123,11 +161,14 @@ export default function Index({ query }) {
             <div className="sec-head">
               <h2>{cat.name}</h2>
               <span className="hint">{cat.hint}</span>
+              <span className="hint" style={{ marginLeft: 'auto' }}>
+                {liveCount(items)}/{items.length} 能跑
+              </span>
             </div>
-            <div className="grid">
-              {items.map((c) => (
-                <Card key={c.slug} c={c} />
-              ))}
+            <div className={view === 'gallery' ? 'gallery' : 'grid'}>
+              {items.map((c) =>
+                view === 'gallery' ? <GalleryCard key={c.slug} c={c} /> : <ListCard key={c.slug} c={c} />,
+              )}
             </div>
           </div>
         )

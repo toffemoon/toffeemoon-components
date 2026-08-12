@@ -9,18 +9,40 @@ npm install
 npm run dev      # http://localhost:5180
 ```
 
+## 两个入口
+
+| 入口 | 是什么 | 依赖 |
+|---|---|---|
+| `index.html` | 目录站 —— 画廊、分类、源码、搜索 | 只有 React 三件套 |
+| `preview.html` | 演示台 —— 在 iframe 里真跑组件 | three / gsap / motion / lucide |
+
+Vite 分开打包,目录站的体积不会被组件依赖拖累。
+
 ## 为什么这么设计
 
-**源码只读不跑。** `library/` 下的文件全部通过 `import.meta.glob(..., '?raw')` 当纯文本读进来,站点从头到尾没 `import` 过 three / gsap / motion 里的任何一个。所以这个库自己的依赖只有 React 三件套,`npm install` 是秒级的,而且永远不会因为某个组件的依赖升级把整个库跑挂。
+**目录站只读源码,不跑源码。** `library/` 下的文件全部通过 `import.meta.glob(..., '?raw')` 当纯文本读进来,目录站从头到尾没 `import` 过 three / gsap / motion 里的任何一个。所以某个组件的依赖升级把自己搞挂了,目录、搜索、源码浏览照常能用。
 
-**预览走 iframe,不走同进程渲染。** 组件来自五个项目,token 系统各不相同(沐言的 CSS 变量、Toffeemoon 的 `--y-*`/`--c-*`、Ripple 的 Tailwind 4),塞进同一个 React app 里 CSS 必然打架,three.js 场景也没法和 React 组件共存。iframe 沙箱两个问题一起解决,代价是预览产物要单独打包一份。
+**预览走 iframe,不走同进程渲染。** 组件来自八个项目,token 体系各不相同(沐言的 `[data-theme]`、Toffeemoon 的 `--y-*`/`--c-*`、Ripple 的 Tailwind 4),塞进同一个页面 CSS 必然打架,three.js 场景也没法和 React 组件共存。iframe 沙箱一次解决,而且画廊里的缩略图和详情页的大图是同一个 URL,不用维护两套。
+
+**画廊里的 iframe 按需挂载。** 63 个 iframe 同时活着会把浏览器压垮,所以只在进入视口时挂载、离开就卸掉,同屏活着的通常不超过 8 个。没有演示台的组件不留白 —— 切一段源码当画面,这样"一眼看到都有什么"对全部组件成立,而不是只对能跑的那些成立。
+
+## 加一个演示台
+
+在 `src-preview/demos/` 放一个 `<slug>.jsx`,default export 一个组件,直接从 `../../library/...` import 要演示的东西。注册是自动的(glob 扫目录),不用改任何注册表。
+
+demo 是**按需加载**的:某个 demo 的 import 断了,只有它自己那格报错,其余照常 —— 别改回 eager glob,那样一个坏的会连坐全部。
+
+有些组件刻意不做演示台:`lunar-home`、`phone-journey` 这类吃太多项目上下文,单独拎出来演示没意义,与其做个假的不如直接去原项目看。`block/` 那批吃 Tailwind 4,要演示得先把 Tailwind 引进 `preview.html` 这个入口。
 
 ## 加一个组件
 
 1. 把源码文件复制进 `library/<分类>/<slug>/`
 2. 在 `src/data/components.js` 的 `COMPONENTS` 里补一条元信息
+3. 想让它在画廊里活起来,再去 `src-preview/demos/` 加一个同名 `.jsx`
 
-站点这边不用改代码 —— 文件列表、行数统计、搜索索引都是自动扫的。
+站点这边不用改代码 —— 文件列表、行数统计、搜索索引、演示台注册都是自动扫的。
+
+从原项目收源码时注意:那些文件里的 import 路径是按原项目的目录写的,搬过来就断了。ripple-site 的 `@/` 别名由 `vite.config.js` 的 alias 表和 `library/_alias/` 接回去(见那个目录的 README)。
 
 分类:`3d-scene` `motion` `ui` `nav` `text` `block` `video` `token`
 
@@ -45,7 +67,7 @@ npm run dev      # http://localhost:5180
 | `card-carousel-3d.html` | 卡片环形轮播 | 原项目自带的 `vite-plugin-singlefile` 单文件产物 |
 | `muyan-bookshop.html` | 沐言书坊 | 同上 |
 
-没接预览的两类:React 组件(要各自写 demo entry,后面逐个补)、s1000rr Lean Lab(模型 10.8 MB 且必须走 HTTP 才能 fetch `.glb`)。
+没接预览的:React 组件 —— 要各自写 demo entry,后面逐批补。
 
 ## 各组件的原始仓库
 
@@ -59,4 +81,3 @@ npm run dev      # http://localhost:5180
 | AI 互动故事 | `toffemoon/ai-interactive-story` |
 | Yuqin portfolio | `toffemoon/toffeemoon` |
 | YoRHa-A2 | `yorhagengyue/yorha-a2-team`(耿越主理) |
-| S1000RR Lean Lab | `yijiangj2025-prog/s1000rr-lean-lab`(账号归属待确认) |
