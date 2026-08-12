@@ -1,0 +1,120 @@
+/*
+  2D 翻板墙。没有 WebGL、没有光照、没有 bloom。
+  三种翻法共用同一套 DOM,只有 transform 不同,靠容器 class 切换。
+
+  性能上的关键:整墙每周期只做一次 class toggle,336 个格子的错落
+  全靠各自的 --d(transition-delay)。JS 不逐格操作,时序完全交给 CSS。
+*/
+
+.wall2d {
+  --gap: 2px;
+  --dur: 0.85s;
+  --half: calc(var(--dur) / 2);
+  --dim: 0.62;
+  --ease: cubic-bezier(0.65, 0, 0.35, 1);
+
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(84vw, calc(82vh * var(--aspect)));
+  aspect-ratio: var(--aspect);
+
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  grid-template-rows: repeat(var(--rows), 1fr);
+  gap: var(--gap);
+  padding: var(--gap);
+
+  /* 格缝里露出的底,和 3D 版的 backdrop 同色,方便直接对比 */
+  background: #30333b;
+}
+
+.wall2d[hidden] {
+  display: none;
+}
+
+.w2-cell {
+  position: relative;
+}
+
+.w2-face {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-size: calc(var(--cols) * 100%) calc(var(--rows) * 100%);
+  background-position: var(--bgpos);
+}
+
+.w2-face--front {
+  background-image: var(--src-a);
+}
+.w2-face--back {
+  background-image: var(--src-b);
+}
+
+/* ── 1. CSS 3D 翻转 ────────────────────────────────
+   共享一个消失点,所以边缘格子的透视更斜——和真的站在墙前看一致。
+   转到 90° 时两面都被 backface-visibility 隐藏,露出底色,
+   那一下的暗就是天然的翻转线索,不用额外加 filter(省掉 336 个滤镜层)。 */
+.wall2d--flip3d {
+  perspective: var(--perspective, 1400px);
+}
+.wall2d--flip3d .w2-cell {
+  transform-style: preserve-3d;
+  transition: transform var(--dur) var(--ease);
+  transition-delay: var(--d);
+}
+.wall2d--flip3d.is-flipped .w2-cell {
+  transform: rotateX(180deg);
+}
+.wall2d--flip3d .w2-face {
+  backface-visibility: hidden;
+}
+.wall2d--flip3d .w2-face--back {
+  transform: rotateX(180deg);
+}
+
+/* ── 2. scaleY 伪翻转 ──────────────────────────────
+   没有 perspective,纯 2D 合成。前一面压扁到 0,后一面接着展开,
+   各占一半时长——翻牌钟就是这个原理。
+   两面在交接处都处于最暗,中间那一下的暗因此天然成立。 */
+.wall2d--scaley .w2-face {
+  transform-origin: center;
+  transition:
+    transform var(--half) var(--ease),
+    filter var(--half) var(--ease);
+}
+.wall2d--scaley .w2-face--front {
+  transform: scaleY(1);
+  filter: brightness(1);
+  transition-delay: calc(var(--d) + var(--half));
+}
+.wall2d--scaley .w2-face--back {
+  transform: scaleY(0);
+  filter: brightness(var(--dim));
+  transition-delay: var(--d);
+}
+.wall2d--scaley.is-flipped .w2-face--front {
+  transform: scaleY(0);
+  filter: brightness(var(--dim));
+  transition-delay: var(--d);
+}
+.wall2d--scaley.is-flipped .w2-face--back {
+  transform: scaleY(1);
+  filter: brightness(1);
+  transition-delay: calc(var(--d) + var(--half));
+}
+
+/* ── 3. 直接切换(交叉淡入)─────────────────────────
+   最平的一档。留着当对照:看看没有翻转动作时,
+   单靠时序错落还剩多少味道。 */
+.wall2d--fade .w2-face {
+  transition: opacity var(--dur) var(--ease);
+  transition-delay: var(--d);
+}
+.wall2d--fade .w2-face--back {
+  opacity: 0;
+}
+.wall2d--fade.is-flipped .w2-face--back {
+  opacity: 1;
+}

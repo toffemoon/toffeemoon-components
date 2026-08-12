@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>翻板墙</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+        background: #08080a;
+        font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+      }
+      #app {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
+      #hud,
+      #stats {
+        position: fixed;
+        color: rgba(255, 255, 255, 0.42);
+        font-size: 12px;
+        line-height: 1.6;
+        letter-spacing: 0.02em;
+        pointer-events: none;
+        user-select: none;
+      }
+      #hud {
+        left: 20px;
+        bottom: 18px;
+        max-width: 46ch;
+      }
+      #stats {
+        left: 20px;
+        top: 18px;
+        font-variant-numeric: tabular-nums;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="app"></canvas>
+    <div id="wall2d" hidden></div>
+    <div id="stats"></div>
+    <div id="hud"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

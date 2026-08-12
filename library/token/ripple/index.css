@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+/* dark: 变体改为 class 策略(站点单一深色态,永不加 .dark → 区块自带的 dark: 样式全部失效) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ───────────────────────────────────────────────────────────
+   Ripple 官网 设计 token v2(2026-07-22 · 深色 + 单 teal)
+   真源 = ripple-ios RippleColor.swift,官网视觉与 app 对齐
+   取代 v1 暖色系(2026-06-26 定稿);语义命名沿用,避免大改组件
+   ─────────────────────────────────────────────────────────── */
+
+@theme {
+  /* 字体(app 用 SF Pro,web 等价 = Inter) */
+  --font-display: "Inter Variable", "Inter", system-ui, "PingFang SC", sans-serif;
+  --font-sans: "Inter Variable", "Inter", system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+  /* 基底(蓝黑 · 刻意不用纯黑;层级靠亮度抬) */
+  --color-bg: #0a0c0f;
+  --color-bg-sunk: #101418;       /* 交替分区 · 比 bg 略抬 */
+  --color-panel: #15181c;         /* 卡片 / 面板 / 输入框 = app surface */
+  --color-ink: #f2f5f6;
+  --color-ink-muted: #9aa1a6;
+  --color-ink-faint: #7e868c;  /* app 原值 #6A7176,web 提亮过 AA(小字对比 4.6:1) */
+  --color-line: rgba(255, 255, 255, 0.08);
+
+  /* 品牌(全站唯一品牌色 teal) */
+  --color-accent: #37c2ba;
+  --color-accent-hover: #2fb0a9;
+  --color-accent-soft: #5fd4cc;
+  --color-accent-wash: #0e1a19;   /* teal 味深底 · 整段区块用 */
+  --color-on-accent: #06201e;     /* teal 按钮上的字 */
+  --color-caramel: #9aa1a6;       /* kicker / 眉题 = app textSecondary(命名沿用 v1) */
+
+  /* 语义(wellness-safe:系统无绿色,成功=teal;amber=偏离;coral=破坏/异常) */
+  --color-good: #37c2ba;
+  --color-caution: #e6b45a;
+  --color-alert: #ff6b5e;
+
+  /* hero 通知 mock 面板(命名沿用 v1 暖夜态) */
+  --color-night: #15181c;
+  --color-night-panel: #1b2026;
+  --color-night-ink: #f2f5f6;
+  --color-night-accent: #37c2ba;
+
+  /* ───────────────────────────────────────────
+     app-* token(style guide 页引用 · 与上方同源同值)
+     ─────────────────────────────────────────── */
+  --color-app-bg: #0a0c0f;
+  --color-app-surface: #15181c;
+  --color-app-surface-2: #1b2026;
+  --color-app-hairline: rgba(255, 255, 255, 0.06);
+  --color-app-hairline-2: rgba(255, 255, 255, 0.1);
+  --color-app-ink: #f2f5f6;
+  --color-app-ink-2: #9aa1a6;
+  --color-app-ink-3: #6a7176;
+  --color-app-accent: #37c2ba;
+  --color-app-accent-light: #5fd4cc;
+  --color-app-accent-muted: rgba(55, 194, 186, 0.16);
+  --color-app-accent-hover: #2fb0a9;
+  --color-app-on-accent: #06201e;
+  --color-app-warning: #e6b45a;
+  --color-app-danger: #ff6b5e;
+}
+
+:root {
+  /* 字阶(font-size · 配 line-height) */
+  --fs-caption: 0.8125rem;  /* 13 */
+  --fs-small:   0.875rem;   /* 14 */
+  --fs-body:    1rem;       /* 16 */
+  --fs-lead:    1.125rem;   /* 18 · 副标 */
+  --fs-h3:      1.5rem;     /* 24 */
+  --fs-h2:      2rem;       /* 32 */
+  --fs-h1:      2.75rem;    /* 44 */
+  --fs-display: 4rem;       /* 64 · hero */
+  --lh-tight: 1.05;
+  --lh-snug: 1.2;
+  --lh-body: 1.6;
+  --lh-relaxed: 1.7;
+
+  /* 间距(4px 基阶 · 与 Tailwind 默认对齐) */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px; --sp-5: 24px;
+  --sp-6: 32px; --sp-7: 48px; --sp-8: 64px; --sp-9: 96px;
+
+  /* 圆角(app:12 / 16 / 20 + pill) */
+  --r-sm: 12px; --r-md: 16px; --r-lg: 20px; --r-xl: 28px; --r-pill: 999px;
+
+  /* 动效 */
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 180ms; --dur-mid: 320ms; --dur-slow: 620ms;
+
+  /* 深色阴影 + teal 光晕(主按钮招牌细节,来自 RippleStyle.swift) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.55);
+  --glow-accent: 0 6px 18px rgba(55, 194, 186, 0.35);
+}
+
+@layer base {
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+}
+
+/* ───────────────────────────────────────────────────────────
+   导航显隐兜底(2026-07-28)
+   实测雨钦本机浏览器(UA 报 Chrome/150,疑为壳浏览器)对 Tailwind v4
+   "类内嵌套 @media" 的层叠处理有缺陷:`hidden md:flex` 组合里 md:flex
+   永远输给 hidden(md 系变体全灭、lg 系正常),导致桌面导航链接和
+   Download 按钮整体消失。导航是全站骨架,不赌任何引擎——这里用
+   顶层普通媒体查询 + !important 显式接管四个元素的 display,
+   任何 2012 年后的内核都能正确解析。对应元素只挂 .nav-* 标记类,
+   不再写 hidden/md:flex 等 Tailwind 显隐工具类(避免双头控制)。
+   全站同款高危写法仅剩 feature-showcase.tsx:107(纯装饰,已记账本)。
+   ─────────────────────────────────────────────────────────── */
+.nav-desktop-links,
+.nav-desktop-download,
+.nav-desktop-session {
+  display: none !important;
+}
+.nav-mobile-download {
+  display: inline-flex !important;
+}
+.nav-mobile-burger {
+  display: flex !important;
+}
+.nav-mobile-menu {
+  display: block !important;
+}
+@media (min-width: 768px) {
+  .nav-desktop-links {
+    display: flex !important;
+  }
+  .nav-desktop-download,
+  .nav-desktop-session {
+    display: inline-flex !important;
+  }
+  .nav-mobile-download,
+  .nav-mobile-burger,
+  .nav-mobile-menu {
+    display: none !important;
+  }
+}
+
+/* 演示区规格表 note 列的显隐兜底(2026-07-29,同上方导航一套方子):
+   全站最后一处 hidden/sm:block 双头写法就此清零 */
+.fs-note-inline {
+  display: none !important;
+}
+.fs-note-stack {
+  display: block !important;
+}
+@media (min-width: 640px) {
+  .fs-note-inline {
+    display: block !important;
+  }
+  .fs-note-stack {
+    display: none !important;
+  }
+}
