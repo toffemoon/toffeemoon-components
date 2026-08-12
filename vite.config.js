@@ -1,11 +1,15 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwind from '@tailwindcss/vite'
 import { resolve } from 'node:path'
 
 const lib = (p) => resolve(__dirname, 'library', p)
 
 export default defineConfig({
-  plugins: [react()],
+  // Tailwind 只处理写了 `@import "tailwindcss"` 的 CSS —— 全库只有
+  // library/token/ripple/index.css 是,所以 ripple 那批组件的样式能起来,
+  // 目录站和其余项目的组件不受影响。
+  plugins: [react(), tailwind()],
   resolve: {
     // ripple-site 的组件用 `@/` 互相引用,收进本库后那些 import 会断。
     // 精确项指回分类目录里那份(同一个文件,不复制),兜底项走 library/_alias/。
@@ -15,6 +19,10 @@ export default defineConfig({
       { find: '@/components/ripple-logo-mark', replacement: lib('ui/ripple-logo-mark/ripple-logo-mark.tsx') },
       { find: '@/components/ripple-mark', replacement: lib('ui/ripple-logo-mark/ripple-mark.tsx') },
       { find: '@/components/simple-graph', replacement: lib('ui/simple-graph/simple-graph.tsx') },
+      // 下面四条走的是 lazy(() => import('@/...')) 动态形式,和静态 import 一样要接
+      { find: '@/components/silk-waves', replacement: lib('motion/silk-waves/silk-waves.tsx') },
+      { find: '@/components/aurora-field', replacement: lib('motion/aurora-field/aurora-field.tsx') },
+      { find: '@/components/ripple-field', replacement: lib('motion/ripple-field/ripple-field.tsx') },
       { find: '@/components/phone-3d-canvas', replacement: lib('3d-scene/phone-3d/phone-3d-canvas.tsx') },
       { find: '@/components/phone-3d', replacement: lib('3d-scene/phone-3d/phone-3d.tsx') },
       { find: '@', replacement: lib('_alias') },

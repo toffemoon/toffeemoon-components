@@ -32,7 +32,21 @@ Vite 分开打包,目录站的体积不会被组件依赖拖累。
 
 demo 是**按需加载**的:某个 demo 的 import 断了,只有它自己那格报错,其余照常 —— 别改回 eager glob,那样一个坏的会连坐全部。
 
-有些组件刻意不做演示台:`lunar-home`、`phone-journey` 这类吃太多项目上下文,单独拎出来演示没意义,与其做个假的不如直接去原项目看。`block/` 那批吃 Tailwind 4,要演示得先把 Tailwind 引进 `preview.html` 这个入口。
+**63 组全部有预览** —— 60 个演示台 + 3 个打包好的静态产物(翻板墙 / 卡片环形轮播 / 沐言书坊)。
+
+## 收来的源码,import 是断的
+
+这是搬运组件库最花时间的一件事,不是写 demo。原项目里的文件按那边的目录结构互相引用,搬过来全断。三类,三种补法:
+
+| 断法 | 例子 | 怎么补 |
+|---|---|---|
+| 别名 | ripple-site 的 `@/lib/motion`、`@/components/silk-waves` | `vite.config.js` 的 alias 表 + `library/_alias/`。注意**动态** `lazy(() => import('@/…'))` 也要接,只 grep `from "@/"` 会漏 |
+| 相对路径 | `Card.jsx` 里的 `./Tag`、`AppShell` 里的 `../PillNav` | 在断掉的位置放一个一行 re-export 的 **shim**,不复制源码 —— 库里每份源码只有一份 |
+| 素材 | `../assets/moon/…`、`/models/iphone.glb` | 相对的按原路径放进对应分类目录(`library/motion/assets/`),绝对的放 `public/` |
+
+有两处是**故意不补**的:`state/game.jsx` 是应用存档(给了空实现,ResumeBar 会自己收起来)、`card-carousel-3d` 和 `muyan-bookshop` 的图片素材(这两件走静态产物预览,库里的源码不需要跑)。
+
+`block/` 那批吃 Tailwind 4 —— `@tailwindcss/vite` 已接进来,只处理写了 `@import "tailwindcss"` 的 CSS,全库只有 `library/token/ripple/index.css` 是,所以不会污染其他项目的组件。
 
 ## 加一个组件
 

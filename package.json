@@ -10,18 +10,26 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
+    "@remotion/player": "^4.0.508",
     "clsx": "^2.1.1",
     "gsap": "^3.15.0",
     "lucide-react": "^1.24.0",
     "motion": "^12.40.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-easy-crop": "^6.2.3",
     "react-router-dom": "^6.26.2",
+    "remotion": "^4.0.508",
     "tailwind-merge": "^3.6.0",
     "three": "^0.185.1"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
     "@vitejs/plugin-react": "^4.3.1",
+    "tailwindcss": "^4.3.3",
     "vite": "^5.4.21"
   }
 }
