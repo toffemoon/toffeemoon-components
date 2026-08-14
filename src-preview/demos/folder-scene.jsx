@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import '../../library/token/toffeemoon/styles.css'
+import './folder-scene.css'
 import { FolderScene } from '../../library/3d-scene/folder-scene/FolderScene.jsx'
 
 export default function Demo() {

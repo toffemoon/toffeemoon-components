@@ -12,7 +12,12 @@ export default function Demo() {
   return (
     <I18nProvider>
       <LunarTransitionProvider>
-        <div className="stage stage--bleed" style={{ position: 'relative', background: '#05060a' }}>
+        {/* 这一场是滚动驱动的:相机与叙事跟着滚动推进。
+            所以容器必须能滚,不然只看得到第 0 帧(一层大气渐变,月亮还没进画)。 */}
+        <div
+          className="stage stage--bleed"
+          style={{ position: 'relative', background: '#05060a', overflowY: 'auto' }}
+        >
           <LunarHome sceneEnabled />
         </div>
       </LunarTransitionProvider>

@@ -1,0 +1,16 @@
+/* FolderScene 挂载到 <div className="folder-scene">,但这个 class 的样式
+   在收进来的任何一份 CSS 里都没有(Toffeemoon 那边 v1.0-rebuild 分支的东西,
+   现在 repo 在 v0.1-refresh 上,src/ 是空的,按规矩不去切分支翻)。
+   结果是挂载点高度 0 → renderer.setSize(w, 0) → 整块黑。
+   演示台自己给它一张台子。 */
+.folder-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.folder-scene canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}

@@ -4,6 +4,7 @@ import { CATEGORIES, COMPONENTS, OWNERS, byCategory } from '../data/components.j
 import { stats, grep } from '../data/sources.js'
 import { previewUrl, liveCount } from '../data/demos.js'
 import Thumb from '../components/Thumb.jsx'
+import ChromaWall from '../components/ChromaWall.jsx'
 
 const S = stats()
 
@@ -14,7 +15,15 @@ function OwnerTag({ owner }) {
 
 function GalleryCard({ c }) {
   return (
-    <Link className="gcard" to={`/c/${c.cat}/${c.slug}`}>
+    <Link
+      className={'gcard t-' + OWNERS[c.owner].tone}
+      to={`/c/${c.cat}/${c.slug}`}
+      onMouseMove={(e) => {
+        const r = e.currentTarget.getBoundingClientRect()
+        e.currentTarget.style.setProperty('--mx', e.clientX - r.left + 'px')
+        e.currentTarget.style.setProperty('--my', e.clientY - r.top + 'px')
+      }}
+    >
       <Thumb c={c} />
       <div className="gcard-body">
         <div className="gcard-top">
@@ -165,11 +174,21 @@ export default function Index({ query }) {
                 {liveCount(items)}/{items.length} 能跑
               </span>
             </div>
-            <div className={view === 'gallery' ? 'gallery' : 'grid'}>
-              {items.map((c) =>
-                view === 'gallery' ? <GalleryCard key={c.slug} c={c} /> : <ListCard key={c.slug} c={c} />,
-              )}
-            </div>
+            {view === 'gallery' ? (
+              <ChromaWall>
+                <div className="gallery">
+                  {items.map((c) => (
+                    <GalleryCard key={c.slug} c={c} />
+                  ))}
+                </div>
+              </ChromaWall>
+            ) : (
+              <div className="grid">
+                {items.map((c) => (
+                  <ListCard key={c.slug} c={c} />
+                ))}
+              </div>
+            )}
           </div>
         )
       })}

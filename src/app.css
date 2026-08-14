@@ -42,6 +42,21 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* 系统默认滚动条在深色底上是一条亮灰,整页就它最扎眼 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2e2a27 transparent;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: #2b2724;
+  border-radius: 6px;
+  border: 2px solid var(--bg);
+}
+*::-webkit-scrollbar-thumb:hover { background: #3d3733; }
+*::-webkit-scrollbar-corner { background: transparent; }
+
 a { color: inherit; text-decoration: none; }
 
 ::selection { background: var(--accent-soft); }
@@ -62,11 +77,13 @@ a { color: inherit; text-decoration: none; }
   padding: 24px 0 40px;
 }
 
+/* 之前卡在 1120px,宽屏上右边空掉一大半。放到 1720 之后
+   画廊在 1920 屏上能排到五列,不再是三列 + 一片空地。 */
 .main {
   flex: 1;
   min-width: 0;
-  padding: 40px 48px 96px;
-  max-width: 1120px;
+  padding: 40px 52px 96px;
+  max-width: 1720px;
 }
 
 /* ── 侧边栏 ─────────────────────────────────────────────────────── */
@@ -245,7 +262,68 @@ a { color: inherit; text-decoration: none; }
   font-size: 10px;
 }
 
-/* ── 画廊 ───────────────────────────────────────────────────────── */
+/* ── 画廊 · 聚光墙 ──────────────────────────────────────────────────
+   做法学 React Bits 的 ChromaGrid:两层 backdrop-filter 罩住整面墙,
+   用径向 mask 在光标处开洞。见 src/components/ChromaWall.jsx 的头注。 */
+
+.chroma-wall {
+  position: relative;
+  --x: 50%;
+  --y: 50%;
+  --r: 340px;
+}
+
+.chroma-overlay,
+.chroma-fade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* 原版是 grayscale(1) brightness(0.78) —— 这面墙的用处是一眼看到都有什么,
+     压太狠等于把远处的卡片藏起来。收到 0.82 / 0.88,远处仍读得出。 */
+  backdrop-filter: grayscale(0.82) brightness(0.88);
+  -webkit-backdrop-filter: grayscale(0.82) brightness(0.88);
+  background: rgba(0, 0, 0, 0.001);
+}
+
+.chroma-overlay {
+  z-index: 3;
+  mask-image: radial-gradient(
+    circle var(--r) at var(--x) var(--y),
+    transparent 0%, transparent 18%,
+    rgba(0,0,0,0.12) 34%, rgba(0,0,0,0.26) 50%,
+    rgba(0,0,0,0.42) 66%, rgba(0,0,0,0.62) 82%, #000 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    circle var(--r) at var(--x) var(--y),
+    transparent 0%, transparent 18%,
+    rgba(0,0,0,0.12) 34%, rgba(0,0,0,0.26) 50%,
+    rgba(0,0,0,0.42) 66%, rgba(0,0,0,0.62) 82%, #000 100%
+  );
+}
+
+/* 鼠标没进来时整面墙是灰的;一动就淡出,把场子交给 overlay */
+.chroma-fade {
+  z-index: 4;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+  mask-image: radial-gradient(
+    circle var(--r) at var(--x) var(--y),
+    #fff 0%, #fff 18%,
+    rgba(255,255,255,0.88) 34%, rgba(255,255,255,0.74) 50%,
+    rgba(255,255,255,0.58) 66%, rgba(255,255,255,0.38) 82%, transparent 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    circle var(--r) at var(--x) var(--y),
+    #fff 0%, #fff 18%,
+    rgba(255,255,255,0.88) 34%, rgba(255,255,255,0.74) 50%,
+    rgba(255,255,255,0.58) 66%, rgba(255,255,255,0.38) 82%, transparent 100%
+  );
+}
+
+/* 关掉动效的人不该被灰罩住 */
+@media (prefers-reduced-motion: reduce) {
+  .chroma-overlay, .chroma-fade { display: none; }
+}
 
 .seg {
   display: inline-flex;
@@ -267,20 +345,47 @@ a { color: inherit; text-decoration: none; }
 
 .gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(292px, 1fr));
+  gap: 14px;
 }
 
 .gcard {
+  position: relative;
   display: flex;
   flex-direction: column;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--bg-raised);
+  border-radius: 14px;
+  /* 卡底吃归属色:自研绿 / 改造琥珀 / 移植蓝 / 待查灰。
+     平时几乎看不见,聚光扫过才亮 —— 颜色是有意义的,不是装饰。 */
+  background: linear-gradient(158deg, var(--tint, #232020) 0%, var(--bg-raised) 62%);
   overflow: hidden;
-  transition: border-color 140ms ease, transform 140ms ease;
+  transition: border-color 240ms ease, transform 160ms ease;
 }
-.gcard:hover { border-color: #3a3330; transform: translateY(-1px); }
+.gcard:hover {
+  border-color: var(--tint-line, #3a3330);
+  transform: translateY(-2px);
+}
+
+/* 卡内跟随指针的小光斑,叠在聚光墙之上 */
+.gcard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 420ms ease;
+  background: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.11), transparent 62%
+  );
+}
+.gcard:hover::before { opacity: 1; }
+
+.t-green { --tint: #1d2a1f; --tint-line: rgba(127,170,127,0.5); }
+.t-amber { --tint: #2c2318; --tint-line: rgba(201,151,92,0.5); }
+.t-blue  { --tint: #1a232b; --tint-line: rgba(124,155,184,0.5); }
+.t-grey  { --tint: #232120; --tint-line: rgba(122,115,108,0.45); }
 
 .thumb {
   position: relative;
