@@ -1,10 +1,10 @@
-import { computeDelays } from '../wall/timing.js'
+import { computeDelays } from './timing.js'
 import './wall2d.css'
 
 // 2D 版翻板墙:纯 DOM + CSS,不碰 WebGL。
 //
-// 和 3D 版共用同一个 timing.js —— 时序引擎当初就是按"不依赖渲染"写的,
-// 这里一行没改直接拿来用,两版的节奏因此完全可比。
+// timing.js 是本目录自带的一份 —— 和 3D 版同一套算法,2026-08-21 起解耦各自维护。
+// 这个目录不再 import 3D 版的任何文件,连同 config.js 可以整目录单独拿走。
 //
 // 周期驱动用 setTimeout 而不是每帧回调:动画由 CSS 自己跑,
 // JS 每个周期只做一次 classList.toggle。
@@ -23,16 +23,21 @@ const MODE_CLASS = {
 }
 
 export class Wall2D {
-  constructor({ config, root, srcA, srcB }) {
+  // sources: 图片播放列表。给 3 张以上就循环轮播,只给两张(或 srcA/srcB)就是来回翻。
+  constructor({ config, root, srcA, srcB, sources }) {
     this.config = config
     this.root = root
-    this.srcA = srcA
-    this.srcB = srcB
+
+    this.playlist = (Array.isArray(sources) && sources.length ? sources : [srcA, srcB]).filter(Boolean)
+    this.cursor = 0 // 当前露在外面的是 playlist 里的第几张
+    this.srcA = this.playlist[0]
+    this.srcB = this.playlist[1] ?? this.playlist[0]
 
     this.cells = []
     this.flipped = false
     this.visible = false
     this.timer = null
+    this.advanceTimer = null
     this.seed = config.flip.seed
 
     // 基础类由组件自己挂,不指望外面的 HTML 写对
@@ -126,11 +131,17 @@ export class Wall2D {
     this.syncGap()
   }
 
+  /** 换图。传数组 = 换整个播放列表;传两个参数 = 老的 A/B 用法。 */
   setSources(srcA, srcB) {
-    this.srcA = srcA
-    this.srcB = srcB
-    this.root.style.setProperty('--src-a', `url("${srcA}")`)
-    this.root.style.setProperty('--src-b', `url("${srcB}")`)
+    clearTimeout(this.advanceTimer)
+    this.playlist = (Array.isArray(srcA) ? srcA : [srcA, srcB]).filter(Boolean)
+    this.cursor = 0
+    this.flipped = false
+    this.root.classList.remove('is-flipped')
+    this.srcA = this.playlist[0]
+    this.srcB = this.playlist[1] ?? this.playlist[0]
+    this.root.style.setProperty('--src-a', `url("${this.srcA}")`)
+    this.root.style.setProperty('--src-b', `url("${this.srcB}")`)
   }
 
   retime() {
@@ -142,6 +153,11 @@ export class Wall2D {
     this.flipped = !this.flipped
     this.root.classList.toggle('is-flipped', this.flipped)
 
+    if (this.playlist.length > 2) {
+      this.cursor = (this.cursor + 1) % this.playlist.length
+      this.queueAdvance()
+    }
+
     if (this.config.flip.reseedEachCycle) {
       this.seed = (this.seed + 1) | 0
       this.applyDelays()
@@ -150,11 +166,26 @@ export class Wall2D {
     this.schedule()
   }
 
-  schedule() {
+  /** 轮播:把背面那张换成下一张。
+   *  必须等这一轮翻转整个走完再换 —— 翻到一半时"背面"正在展开,提前换会被看见。 */
+  queueAdvance() {
+    clearTimeout(this.advanceTimer)
+    const { spread, duration } = this.config.flip
+    const next = this.playlist[(this.cursor + 1) % this.playlist.length]
+    const hiddenVar = this.flipped ? '--src-a' : '--src-b'
+    this.advanceTimer = setTimeout(
+      () => this.root.style.setProperty(hiddenVar, `url("${next}")`),
+      (spread + duration) * 1000 + 120,
+    )
+  }
+
+  /** first=true 用 startDelay(配了的话)—— 落地就能看见在翻,不用干等一整个周期 */
+  schedule(first = false) {
     clearTimeout(this.timer)
     if (!this.visible || !this.config.flip.playing) return
-    const { spread, duration, hold } = this.config.flip
-    this.timer = setTimeout(() => this.tick(), (spread + duration + hold) * 1000)
+    const { spread, duration, hold, startDelay } = this.config.flip
+    const wait = first && startDelay != null ? startDelay : spread + duration + hold
+    this.timer = setTimeout(() => this.tick(), wait * 1000)
   }
 
   flipNow() {
@@ -165,17 +196,19 @@ export class Wall2D {
     this.visible = true
     this.root.hidden = false
     this.syncGap()
-    this.schedule()
+    this.schedule(true)
   }
 
   hide() {
     this.visible = false
     this.root.hidden = true
     clearTimeout(this.timer)
+    clearTimeout(this.advanceTimer)
   }
 
   dispose() {
     clearTimeout(this.timer)
+    clearTimeout(this.advanceTimer)
     this.resizeObserver.disconnect()
     this.root.textContent = ''
   }

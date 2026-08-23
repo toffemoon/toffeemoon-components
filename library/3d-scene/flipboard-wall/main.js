@@ -57,7 +57,7 @@ scene.add(environment.group)
 const postfx = createPostFX({ renderer, scene, camera, config })
 
 // ── 2D 版 ──────────────────────────────────────
-// 同一份 config、同一个 timing.js,只是换了渲染方式。
+// 同一份 config、同一套时序算法(2D 版自带同源的 timing.js 拷贝),只是换了渲染方式。
 // 两版并存是为了能直接来回切着比,而不是看两份截图猜差别。
 
 let objectURLs = []

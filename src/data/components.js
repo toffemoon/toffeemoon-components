@@ -20,6 +20,7 @@ export const REPOS = {
   aistory: 'https://github.com/toffemoon/ai-interactive-story',
   yuqin: 'https://github.com/toffemoon/toffeemoon',
   yorha: 'https://github.com/yorhagengyue/yorha-a2-team',
+  bookshelf: null, // 本地 Desktop/书架轮播,已 git init,未推远端
 }
 
 export const CATEGORIES = [
@@ -62,8 +63,9 @@ export const COMPONENTS = [
     desc: '同一面墙的纯 DOM + CSS 版,不碰 WebGL。附独立的时序引擎 timing.js。',
     notes: [
       'timing.js 是纯函数模块:(col, row, cols, rows, seed) → 0..1 延迟。内置八种节奏 —— 随机、对角波浪、中心扩散、中心收拢、列扫、行扫、分组批次、涟漪。',
-      '和 3D 版共用同一个 timing.js,一行没改,两版节奏完全可比 —— 这是当初把时序和渲染解耦的收益。',
+      '时序引擎和 3D 版同一套算法,但 2026-08-21 起是各自独立的拷贝 —— 2D 目录不再 import 3D 版任何文件(timing.js、默认 config 都自带),可整目录单独拿走。',
       '周期驱动用 setTimeout 不用逐帧回调:动画交给 CSS 跑,JS 每周期只做一次 classList.toggle。',
+      '演示台用 public/wall/ 的八张照片循环轮播 —— Wall2D 收 sources 数组,等一轮翻转走完才换背面那张(提前换会被看见)。',
       '整个库里最适合单独抽成一个包的一件。',
     ],
   },
@@ -80,6 +82,21 @@ export const COMPONENTS = [
     ],
   },
   {
+    slug: 'bookshelf-carousel', cat: '3d-scene', name: '书架轮播',
+    from: '个人博物馆', repo: 'bookshelf', owner: 'self',
+    deps: ['three', 'gsap'],
+    preview: '/previews/bookshelf-carousel.html',
+    desc: '一排密排的书立在架上,当前那本绕自己的书脊为铰链从架中展开,以 3/4 视角悬在书架前方。仿绝区零录像带架。',
+    notes: [
+      '驱动只有一个连续量 pos(浮点索引):每本书的姿态由 t = pos - index 决定,拖动直接改 pos、点箭头用 GSAP 补间 pos,同一套计算 —— 所以"划过很多本"就是这段开合动画被加速连播。',
+      '姿态拆两段:extend(探出书架,书脊仍朝镜头)与 swing(绕书脊转开封面),swing 包在 extend 内。相邻两本的 extend 首尾搭接,交接时画面上始终有书在动。',
+      '变速曲线:交接快、展开慢,快慢比约 2.6:1(stepEaseFn 把线性时间重映射成 pos 进度)。',
+      '按深度的连续景深:场景 RT 挂 DepthTexture,合成时按 coc 在锐版与糊版之间插值,近处书脊可读、越远越糊。',
+      '首尾相接的循环、书间留缝与倾斜参差、封面按需生成 + LRU、竖屏锁水平视角、prefers-reduced-motion。',
+      '为个人博物馆的"书架 = 项目 / 经历"做的,也可单独用。封面目前是程序化占位。',
+    ],
+  },
+  {
     slug: 'muyan-bookshop', cat: '3d-scene', name: '沐言书坊',
     from: '沐言书坊', repo: 'muyan', owner: 'self',
     deps: ['three'],
@@ -93,40 +110,32 @@ export const COMPONENTS = [
     ],
   },
   {
-    slug: 'lunar-home', cat: '3d-scene', name: '月球首页',
-    from: 'Toffeemoon Design System', repo: 'tds', owner: 'self',
-    deps: ['three', '@react-three/fiber', 'gsap'],
-    preview: null,
-    desc: 'Toffeemoon 首页的月球场景:项目化成小行星绕月运行,滚动推进相机与叙事。',
-    notes: [
-      'LunarScene 装配 + LunarCameraRig 相机轨道(345 行,整组里最重的一块)。',
-      'ProjectSystem / ProjectAsteroid:每个作品一颗程序化生成几何的小行星。',
-      'useLunarScrollTimeline 把滚动映射成时间轴;LunarTransitionContext 管跨组件的转场状态。',
-    ],
-  },
-  {
-    slug: 'folder-scene', cat: '3d-scene', name: 'FolderScene 三维文件夹',
-    from: 'Toffeemoon Design System', repo: 'tds', owner: 'self',
-    deps: ['three', 'gsap'], preview: null,
-    desc: '3D 文件夹展开动画,gsap 驱动。',
-  },
-  {
     slug: 'frame-border', cat: '3d-scene', name: 'frame-border 着色器边框',
     from: 'Toffeemoon Design System', repo: 'tds', owner: 'self',
     deps: ['@react-three/fiber'], preview: null,
-    desc: 'R3F 着色器画的动态边框,贴在内容外圈。',
+    desc: 'R3F 着色器画的动态边框,内容走 children 套在框里。fbm 噪声算边,同一个 shader 能出霓虹 / 烛照 / 薄雾 / 锐边四种味道。',
+    notes: [
+      '2026-08-23 修 .frame-border-content:原来是 position:relative,而 R3F 给 <Canvas> 外层 div 打的行内 position:relative + height:100% 压过了 .frame-border-canvas 的 absolute,内容层就被整块顶到容器下方。改成 absolute 铺满容器。',
+    ],
   },
   {
     slug: 'signal-orb', cat: '3d-scene', name: 'SignalOrb 信号球',
     from: 'Toffeemoon Design System', repo: 'tds', owner: 'self',
     deps: ['three'], preview: null,
-    desc: '带月面贴图的信号球,用作品牌符号 / 加载指示。',
+    desc: '带月面贴图的信号球,用作品牌符号 / 加载指示。鼠标移入可带动转向。',
+    notes: [
+      '2026-08-23 补了 signal-orb.css —— 原项目的样式表没随组件收进来,而组件是拿 mount.clientWidth/Height 去建 renderer 的,容器塌成 0 就 setSize(0,0),画面全黑。属于"跑得起来但看不见"那类坑。',
+    ],
   },
   {
     slug: 'phone-3d', cat: '3d-scene', name: 'phone-3d 手机滚动展示',
     from: 'ripple-site', repo: 'ripple', owner: 'self',
     deps: ['three', '@react-three/fiber', '@react-three/drei', 'motion'], preview: null,
     desc: '一台 3D 手机随页面滚动旋转推进,屏幕内容跟着换。懒加载 Canvas,不影响首屏。',
+    notes: [
+      '屏幕是贴在 mesh 上的 VideoTexture,不是 DOM 叠层 —— 双层交叉淡化在壳浏览器上会渲成多重曝光,是弃案,别复活。',
+      '2026-08-23 加 orbit 开关:打开后 OrbitControls 接管相机(可拖转 / 滚轮推拉 / 松手自转),滚动编排让位。默认 false,线上站行为不变;演示台开着,因为格子里没有滚动行程可用。',
+    ],
   },
 
   // ───────────────────────────── 动效与转场 ─────────────────────────────
@@ -137,26 +146,19 @@ export const COMPONENTS = [
     desc: 'Toffeemoon v1.0 的默认 preloader:水面张力。含 Preloader 壳 + 时间轴 hook + RippleReveal 涟漪环。',
     notes: [
       'RippleReveal 只画可见的涟漪环;真正的揭示(alpha 遮罩)由 preloader 根节点上的 --reveal-radius 单独驱动,环不当遮罩用。',
+      '2026-08-23:原来 Preloader 里有 ?loader=blacktop / ?loader=puddle 两个变体分支,那两个组件已随 v1.0 月球线一起从本库删除,变体开关也去掉了,只留 Surface Tension 本体。',
     ],
-  },
-  {
-    slug: 'blacktop-moonrise', cat: 'motion', name: 'Blacktop Moonrise 开场',
-    from: 'Toffeemoon Design System', repo: 'tds', owner: 'self',
-    deps: ['three', '@react-three/fiber'], preview: null,
-    desc: '第二个 preloader 变体:柏油路上的月升。线上走 ?loader=blacktop 切换。',
-  },
-  {
-    slug: 'puddle-stage', cat: 'motion', name: 'PuddleStage 水洼',
-    from: 'Toffeemoon Design System', repo: 'tds', owner: 'self',
-    deps: ['three', '@react-three/fiber'], preview: null,
-    desc: '积水反射舞台,加色混合的水面高光。',
   },
   {
     slug: 'rain-layer', cat: 'motion', name: 'RainLayer 慢雨',
     from: 'Toffeemoon Design System', repo: 'tds', owner: 'self',
     deps: [], preview: null,
-    desc: '细、暗、慢的雨线,带空间景深,少量雨滴带青绿高光。刻意不是黑客帝国那种。',
-    notes: ['尊重 prefers-reduced-motion。'],
+    desc: '细、暗、慢的雨线,带空间景深,少量雨滴带青绿高光。刻意不是黑客帝国那种。频率 / 速度 / 浓度可调。',
+    notes: [
+      '尊重 prefers-reduced-motion。',
+      '2026-08-23 把三个写死的量改成 props:density(频率)、speed(速度)、opacity(浓度)。speed / opacity 走 ref,改了下一帧生效;density 变了要重建雨滴,所以它在依赖数组里。',
+      '默认值是按"满屏背景层"调的,细到在小画布里几乎看不见 —— 演示台把默认抬到 density 1.8 / opacity 2.4 才看得出来。',
+    ],
   },
   {
     slug: 'ink-transition', cat: 'motion', name: '水墨路由转场',

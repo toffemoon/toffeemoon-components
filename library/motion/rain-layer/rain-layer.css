@@ -1,0 +1,8 @@
+/* 2026-08-23 补:原项目的样式表没随组件收进来。canvas 自己会设 width/height,
+   但不给定位就会挤进正常文档流 —— 这份让它老实铺在容器上、不吃鼠标事件。 */
+
+.rain-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}

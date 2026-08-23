@@ -32,6 +32,8 @@ export interface DemoPhone3DProps {
   alt: string;
   /** flat fallback 版描述(没有 3D 手机,不能沿用 alt) */
   altFlat: string;
+  /** true = 鼠标自由旋转,不跟滚动(2026-08-23 加,组件库演示台用) */
+  orbit?: boolean;
 }
 
 function VideoFallback({ underlay, videoWebm, videoMp4, altFlat }: DemoPhone3DProps) {
@@ -97,7 +99,7 @@ function VideoFallback({ underlay, videoWebm, videoMp4, altFlat }: DemoPhone3DPr
   );
 }
 
-function Canvas3D({ underlay, videoWebm, videoMp4, mirror = false, alt }: DemoPhone3DProps) {
+function Canvas3D({ underlay, videoWebm, videoMp4, mirror = false, alt, orbit = false }: DemoPhone3DProps) {
   const boxRef = useRef<HTMLDivElement>(null);
 
   // 提前 600px 预挂载,让懒 chunk + 模型 + 屏幕视频在进入视口前加载完
@@ -133,6 +135,7 @@ function Canvas3D({ underlay, videoWebm, videoMp4, mirror = false, alt }: DemoPh
             videoWebm={videoWebm}
             videoMp4={videoMp4}
             mirror={mirror}
+            orbit={orbit}
           />
         </Suspense>
       )}

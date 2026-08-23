@@ -5,6 +5,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Environment,
   Lightformer,
+  OrbitControls,
   useGLTF,
   useTexture,
 } from "@react-three/drei";
@@ -45,9 +46,12 @@ interface PhoneProps {
   videoMp4: string;
   /** true = 手机在右列,入场从右侧转正(镜像编排) */
   mirror: boolean;
+  /** true = 撇开滚动编排,交给鼠标自由旋转(OrbitControls)。2026-08-23 加,
+      给组件库演示台用 —— 线上站仍走 progress 那条路,默认 false 行为不变 */
+  orbit?: boolean;
 }
 
-function PhoneModel({ progress, underlay, videoWebm, videoMp4, mirror }: PhoneProps) {
+function PhoneModel({ progress, underlay, videoWebm, videoMp4, mirror, orbit }: PhoneProps) {
   const group = useRef<Group>(null);
   const { gl } = useThree();
   const { scene } = useGLTF(MODEL_URL);
@@ -141,6 +145,19 @@ function PhoneModel({ progress, underlay, videoWebm, videoMp4, mirror }: PhonePr
 
   useFrame((_, dt) => {
     if (!group.current) return;
+    // 自由旋转模式:姿态缓归正面,之后不再碰 —— 相机交给 OrbitControls,
+    // 继续往 group.rotation 里写会和拖拽打架
+    if (orbit) {
+      const k = Math.min(1, dt * 6);
+      const c = pose.current;
+      c.ry += (RY_END - c.ry) * k;
+      c.rx += (0 - c.rx) * k;
+      c.rz += (0 - c.rz) * k;
+      c.y += (0 - c.y) * k;
+      group.current.rotation.set(c.rx, c.ry, c.rz);
+      group.current.position.y = c.y;
+      return;
+    }
     const raw = Math.min(1, Math.max(0, progress.get()));
     const p = Math.min(1, raw / 0.55);
     const e = 1 - Math.pow(1 - p, 3);
@@ -181,8 +198,20 @@ export default function Phone3DCanvas(props: PhoneProps) {
       camera={{ position: [0, 0, 5.6], fov: 32 }}
       dpr={[1, 2]}
       gl={{ antialias: true, powerPreference: "high-performance", alpha: true }}
-      style={{ pointerEvents: "none" }}
+      style={{ pointerEvents: props.orbit ? "auto" : "none" }}
     >
+      {props.orbit && (
+        <OrbitControls
+          makeDefault
+          enablePan={false}
+          minDistance={3.4}
+          maxDistance={9}
+          autoRotate
+          autoRotateSpeed={0.9}
+          enableDamping
+          dampingFactor={0.08}
+        />
+      )}
       {/* 金属机身没有环境反射就近乎纯黑(PBR 特性)。不用 preset HDRI
           (走 CDN,国内网络不赌),Lightformer 程序化生成录影棚环境 */}
       <Environment resolution={256}>

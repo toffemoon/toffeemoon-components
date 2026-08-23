@@ -24,7 +24,7 @@ Vite 分开打包,目录站的体积不会被组件依赖拖累。
 
 **预览走 iframe,不走同进程渲染。** 组件来自八个项目,token 体系各不相同(沐言的 `[data-theme]`、Toffeemoon 的 `--y-*`/`--c-*`、Ripple 的 Tailwind 4),塞进同一个页面 CSS 必然打架,three.js 场景也没法和 React 组件共存。iframe 沙箱一次解决,而且画廊里的缩略图和详情页的大图是同一个 URL,不用维护两套。
 
-**画廊里的 iframe 按需挂载。** 63 个 iframe 同时活着会把浏览器压垮,所以只在进入视口时挂载、离开就卸掉,同屏活着的通常不超过 8 个。没有演示台的组件不留白 —— 切一段源码当画面,这样"一眼看到都有什么"对全部组件成立,而不是只对能跑的那些成立。
+**画廊里的 iframe 按需挂载。** 64 个 iframe 同时活着会把浏览器压垮,所以只在进入视口时挂载、离开就卸掉,同屏活着的通常不超过 8 个。没有演示台的组件不留白 —— 切一段源码当画面,这样"一眼看到都有什么"对全部组件成立,而不是只对能跑的那些成立。
 
 ## 加一个演示台
 
@@ -32,7 +32,7 @@ Vite 分开打包,目录站的体积不会被组件依赖拖累。
 
 demo 是**按需加载**的:某个 demo 的 import 断了,只有它自己那格报错,其余照常 —— 别改回 eager glob,那样一个坏的会连坐全部。
 
-**63 组全部有预览** —— 60 个演示台 + 3 个打包好的静态产物(翻板墙 / 卡片环形轮播 / 沐言书坊)。
+**64 组全部有预览** —— 60 个演示台 + 4 个打包好的静态产物(翻板墙 / 卡片环形轮播 / 沐言书坊 / 书架轮播)。
 
 ## 收来的源码,import 是断的
 
@@ -79,6 +79,7 @@ demo 是**按需加载**的:某个 demo 的 import 断了,只有它自己那格�
 |---|---|---|
 | `flipboard-wall/` | 翻板墙 | `npm run build` 的 dist 整个复制 |
 | `card-carousel-3d.html` | 卡片环形轮播 | 原项目自带的 `vite-plugin-singlefile` 单文件产物 |
+| `bookshelf-carousel.html` | 书架轮播 | 同上 |
 | `muyan-bookshop.html` | 沐言书坊 | 同上 |
 
 没接预览的:React 组件 —— 要各自写 demo entry,后面逐批补。
@@ -89,6 +90,7 @@ demo 是**按需加载**的:某个 demo 的 import 断了,只有它自己那格�
 |---|---|
 | 翻板墙 | `toffemoon/flipboard-wall` |
 | 卡片环形轮播 | `toffemoon/card-carousel` |
+| 书架轮播 | 本地 `Desktop/书架轮播`,已 git init,未推远端 |
 | 沐言书坊 | `toffemoon/muyan-bookshop` |
 | Toffeemoon Design System | `toffemoon/toffeemoon-design-system` |
 | ripple-site | `toffemoon/ripple-site` |

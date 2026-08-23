@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import moonTextureUrl from "../assets/moon/moon-texture-2048.jpg";
+import "./signal-orb.css";
 
 function supportsWebgl() {
   try {

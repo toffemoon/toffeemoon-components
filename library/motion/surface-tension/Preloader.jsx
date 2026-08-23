@@ -1,25 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RippleReveal } from "./RippleReveal.jsx";
 import { SurfaceTensionScene } from "./SurfaceTensionScene.jsx";
 import { usePreloaderTimeline } from "./usePreloaderTimeline.js";
-import { BlacktopMoonrise } from "./BlacktopMoonrise.jsx";
-import { PuddleStage1 } from "./PuddleStage1.jsx";
 
-function loaderVariant() {
-  if (typeof window === "undefined") return "surface";
-  const q = new URLSearchParams(window.location.search).get("loader");
-  if (q === "puddle") return "puddle";
-  if (q === "blacktop") return "blacktop";
-  return "surface";
-}
-
-// Switch between the default Surface Tension loader and the experimental art-direction
-// prototypes. Default = surface (committed main); ?loader=blacktop for the shader prototype;
-// ?loader=puddle for the Blender-baked asphalt-puddle Stage 1 styleframe (add ?hold=1 to freeze).
+// 2026-08-23:blacktop / puddle 两个变体已从本库删除(v1.0 月球线弃案),
+// ?loader= 的变体开关随之去掉,只留 Surface Tension 本体。
 export function Preloader(props) {
-  const variant = useMemo(() => loaderVariant(), []);
-  if (variant === "puddle") return <PuddleStage1 {...props} />;
-  if (variant === "blacktop") return <BlacktopMoonrise {...props} />;
   return <SurfaceTensionPreloader {...props} />;
 }
 

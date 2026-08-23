@@ -10,7 +10,7 @@ import { lazy } from 'react'
 // 坏掉的那个只会在自己格子里报错,其余照常。
 //
 // 不在这张表里的组件,预览页显示「还没搭演示台」。这是刻意的:
-// 有些组件(lunar-home、phone-journey)吃太多项目上下文,单独拎出来演示没意义,
+// 有些组件(phone-journey 这类)吃太多项目上下文,单独拎出来演示没意义,
 // 与其做个假的不如老实说去原项目看。
 
 const modules = import.meta.glob('./*.jsx')

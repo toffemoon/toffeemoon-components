@@ -10,8 +10,13 @@
   height: 100%;
 }
 
+/* 2026-08-23:原来是 position:relative —— R3F 给 <Canvas> 外层 div 打的行内
+   position:relative + height:100% 压过了 .frame-border-canvas 的 absolute,
+   内容层于是排在 canvas 之后、被整块顶到容器下方。内容层本来就该"盖在"边框上,
+   改成 absolute 铺满容器(.frame-border-container 是 relative,吃得住)。 */
 .frame-border-content {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 1;
   pointer-events: none;
 }
