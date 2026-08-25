@@ -167,19 +167,11 @@ export const COMPONENTS = [
     ],
   },
   {
-    slug: 'ripple-transition', cat: 'motion', name: '涟漪路由转场',
-    from: '沐言书坊', repo: 'muyan', owner: 'self',
+    slug: 'ink-transition', cat: 'motion', name: '水墨路由转场',
+    from: 'AI互动故事', repo: 'aistory', owner: 'self',
     deps: [], preview: null,
-    desc: '从落点扩开一圈圈水纹,盖满的那一下换页,然后淡出。速度、曲率、圈数、波幅四个参数可调。',
-    notes: [
-      '前身是同目录的落墨转场:一个纯色层 + clip-path: circle() 涨圆。那份实现的注释里按钮就叫「涟漪入局」,画出来却是一滴墨 —— 2026-08-26 把名字兑现成实现。',
-      '从 clip-path 换成 canvas 是被逼的:clip-path: circle() 只给得出一条硬边,而涟漪的命是「一圈圈」。CSS 的 repeating-radial-gradient 能画等距的圈,但涟漪的圈不是等距的 —— 能量往外衰减,圈会朝后堆,曲率这个参数调的就是这件事。代价是一个全屏 canvas,但它只活转场那一下(<1s)就自删,仍然零克隆。',
-      '曲率 curvature 是进度指数:进度按 t^(1/curvature) 走,>1 起手快收尾慢(真实水纹失能量的样子),<1 起手慢末尾抽一下。同一个指数也用来排圈的位置。',
-      '换页排在盖满的那一帧回调,所以换页藏在覆盖层底下,看不见闪。减动偏好下整层不建,直接换页。',
-      '演示台的台子必须是亮底 —— 覆盖层的颜色就是目的地的暗底色,深色盖在深色上等于隐形,前身那版就栽在这。',
-    ],
+    desc: '页面切换时的水墨扩散转场,配套 transitionNav 把 router 跳转包进转场时序里。',
   },
-
   {
     slug: 'aurora-field', cat: 'motion', name: 'aurora-field 极光背景',
     from: 'ripple-site', repo: 'ripple', owner: 'self',
