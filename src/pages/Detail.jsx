@@ -26,7 +26,10 @@ export default function Detail() {
       <div className="detail-head">
         <h1>
           {c.name}
-          <span className={'tag-owner o-' + o.tone}>{o.label}</span>
+          <span className="prov">
+            <span className={'tag-owner o-' + o.tone}>{o.label}</span>
+            {c.source && <span className="tag-src">源自 {c.source}</span>}
+          </span>
         </h1>
         <p className="detail-desc">{c.desc}</p>
       </div>
@@ -36,6 +39,12 @@ export default function Detail() {
           <div className="k">来自</div>
           <div className="v">{c.from}</div>
         </div>
+        {c.source && (
+          <div className="meta-cell">
+            <div className="k">上游</div>
+            <div className="v">{c.source}</div>
+          </div>
+        )}
         <div className="meta-cell">
           <div className="k">远端备份</div>
           <div className="v">

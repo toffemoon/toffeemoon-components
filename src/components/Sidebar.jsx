@@ -8,7 +8,7 @@ export default function Sidebar({ query, setQuery }) {
     <aside className="sidebar">
       <div className="brand">
         <div className="brand-name">Toffeemoon Components</div>
-        <div className="brand-sub">{COMPONENTS.length} 组 · 私人库</div>
+        <div className="brand-sub">{COMPONENTS.length} 组 · 陈雨钦</div>
       </div>
 
       <input

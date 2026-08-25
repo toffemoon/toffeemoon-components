@@ -8,9 +8,16 @@ import ChromaWall from '../components/ChromaWall.jsx'
 
 const S = stats()
 
-function OwnerTag({ owner }) {
-  const o = OWNERS[owner]
-  return <span className={'tag-owner o-' + o.tone}>{o.label}</span>
+// 归属 + 上游来源。站点公开之后这两条要一起出现 ——
+// 改造件标出起点,不是心虚,是说清楚哪部分是自己做的。
+function Provenance({ c }) {
+  const o = OWNERS[c.owner]
+  return (
+    <span className="prov">
+      <span className={'tag-owner o-' + o.tone}>{o.label}</span>
+      {c.source && <span className="tag-src">源自 {c.source}</span>}
+    </span>
+  )
 }
 
 function GalleryCard({ c }) {
@@ -28,7 +35,7 @@ function GalleryCard({ c }) {
       <div className="gcard-body">
         <div className="gcard-top">
           <span className="gcard-name">{c.name}</span>
-          <OwnerTag owner={c.owner} />
+          <Provenance c={c} />
         </div>
         <div className="gcard-desc">{c.desc}</div>
         <div className="gcard-foot">
@@ -45,7 +52,7 @@ function ListCard({ c }) {
     <Link className="card" to={`/c/${c.cat}/${c.slug}`}>
       <div className="card-top">
         <span className="card-name">{c.name}</span>
-        <OwnerTag owner={c.owner} />
+        <Provenance c={c} />
       </div>
       <div className="card-desc">{c.desc}</div>
       <div className="card-foot">
@@ -113,7 +120,9 @@ export default function Index({ query }) {
 
   if (query.trim().length >= 2) return <SearchResults query={query} />
 
-  const self = COMPONENTS.filter((c) => c.owner === 'self').length
+  // 自研和改造都算自己的 —— 灵感来自别处、代码是自己改出来的,那就是自己的。
+  // 移植那五件不算,它们只是换了个地方放。
+  const mine = COMPONENTS.filter((c) => c.owner === 'self' || c.owner === 'adapted').length
   const live = liveCount(COMPONENTS)
 
   return (
@@ -139,13 +148,13 @@ export default function Index({ query }) {
             <div className="k">行源码</div>
           </div>
           <div className="stat">
-            <div className="v">{self}</div>
-            <div className="k">自研</div>
+            <div className="v">{mine}</div>
+            <div className="k">我的</div>
           </div>
           <div className="stat">
             <div className="v">
               {live}
-              <span style={{ opacity: 0.4, fontSize: 14 }}>/{COMPONENTS.length}</span>
+              <span className="stat-total">/{COMPONENTS.length}</span>
             </div>
             <div className="k">能跑起来看</div>
           </div>

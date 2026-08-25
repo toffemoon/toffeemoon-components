@@ -10,7 +10,7 @@
 
   --fg: #ece6dd;
   --fg-muted: #9a9088;
-  --fg-faint: #6b635c;
+  --fg-faint: #857d75;
 
   --accent: #c9975c;
   --accent-soft: rgba(201, 151, 92, 0.14);
@@ -18,11 +18,34 @@
   --green: #7faa7f;
   --amber: #c9975c;
   --blue: #7c9bb8;
-  --grey: #7a736c;
+  --grey: #8a837b;  /* 4.18:1 提到 5.22:1 —— 待查徽章仍是四色里最暗的,但过线了 */
 
-  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Consolas,
+          "PingFang SC", "Microsoft YaHei", monospace;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
           "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+
+  /* 字号 —— 6 级,整数 px,相邻级差 ≥2px。
+     字重不参与层级:font-weight:500 在 Windows 的 Segoe UI / 微软雅黑上都没有
+     500 字面,CSS 字体匹配会静默回落到 400,只在 mac 上兑现。
+     层级只能靠字号 + --fg / --fg-muted / --fg-faint 三级灰。 */
+  --fs-label: 12px;  /* 标签 · 计数 · 徽章 · 脚注 · 元信息键名(全站可读文本地板) */
+  --fs-aux:   14px;  /* 描述 · 控件 · 代码 · 侧栏条目 · 面包屑 */
+  --fs-body:  16px;  /* 正文 · 卡片名 · 元信息值 · 品牌名 */
+  --fs-head:  18px;  /* 区块标题 h2 */
+  --fs-num:   21px;  /* 统计数字 */
+  --fs-page:  28px;  /* 页面标题 h1 */
+
+  /* 行高 —— 中文字面墨迹约占 0.88em,拉丁小写只有 x-height 约 0.50em,
+     同一个 line-height 下中文行间空白少 0.16em,所以要比拉丁经验值高约 0.15。 */
+  --lh-tight: 1.35;  /* h1 / h2 / 统计数字 */
+  --lh-base:  1.7;   /* 正文基准 · 卡片描述 · 单行控件 */
+  --lh-prose: 1.8;   /* 长段中文:首页导语 / 详情描述 / 工程注记 */
+  --lh-code:  1.6;   /* 代码块 pre.code / .hit-txt。缩略图那块装饰性源码不走 token,见 .thumb-code pre */
+
+  /* 行长 —— 用 em 锁「每行中文字数」。不用 ch:ch 取字体里「0」的字宽,
+     Segoe UI 0.539em、mac 那套又不同,同一页在两个系统上行长会漂。 */
+  --measure: 34em;
 
   --sidebar-w: 264px;
   --radius: 10px;
@@ -37,8 +60,8 @@ body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--sans);
-  font-size: 14px;
-  line-height: 1.65;
+  font-size: var(--fs-body);
+  line-height: var(--lh-base);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -94,12 +117,12 @@ a { color: inherit; text-decoration: none; }
   margin-bottom: 18px;
 }
 .brand-name {
-  font-size: 15px;
+  font-size: var(--fs-body);
   letter-spacing: 0.01em;
   color: var(--fg);
 }
 .brand-sub {
-  font-size: 11.5px;
+  font-size: var(--fs-label);
   color: var(--fg-faint);
   margin-top: 3px;
   font-family: var(--mono);
@@ -113,9 +136,12 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid var(--line);
   border-radius: 7px;
   color: var(--fg);
-  padding: 7px 10px;
+  padding: 8px 12px;
   font-family: var(--mono);
-  font-size: 12px;
+  /* 不得低于 16px:iOS Safari 在 input 字号 <16px 时聚焦会自动放大整页且不缩回 */
+  font-size: var(--fs-body);
+  /* button/input 不继承 body 的 line-height(UA 样式写死 normal),必须显式给 */
+  line-height: var(--lh-base);
 }
 .search:focus {
   outline: none;
@@ -129,18 +155,18 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   align-items: baseline;
   gap: 8px;
-  padding: 9px 22px 5px;
+  padding: 14px 22px 6px;
 }
-.cat-head .n { font-size: 12px; color: var(--fg-muted); letter-spacing: 0.04em; }
-.cat-head .c { font-size: 10.5px; color: var(--fg-faint); font-family: var(--mono); }
+.cat-head .n { font-size: var(--fs-aux); color: var(--fg); letter-spacing: 0; }
+.cat-head .c { font-size: var(--fs-label); color: var(--fg-faint); font-family: var(--mono); }
 
 .item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 22px 5px 30px;
+  padding: 8px 22px 8px 30px;
   color: var(--fg-muted);
-  font-size: 13px;
+  font-size: var(--fs-aux);
   border-left: 2px solid transparent;
 }
 .item:hover { color: var(--fg); background: rgba(255, 255, 255, 0.018); }
@@ -157,14 +183,29 @@ a { color: inherit; text-decoration: none; }
 /* ── 归属标签 ───────────────────────────────────────────────────── */
 
 .tag-owner {
-  font-size: 10.5px;
+  font-size: var(--fs-label);
   font-family: var(--mono);
-  padding: 1.5px 6px;
+  padding: 2px 7px;
   border-radius: 4px;
   border: 1px solid;
   white-space: nowrap;
-  letter-spacing: 0.03em;
+  letter-spacing: 0;
 }
+/* 归属徽章 + 上游来源,并排一组 */
+.prov {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+.tag-src {
+  font-size: var(--fs-label);
+  font-family: var(--mono);
+  color: var(--fg-faint);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
 .o-green { color: var(--green); border-color: rgba(127, 170, 127, 0.34); }
 .o-amber { color: var(--amber); border-color: rgba(201, 151, 92, 0.34); }
 .o-blue  { color: var(--blue);  border-color: rgba(124, 155, 184, 0.34); }
@@ -179,15 +220,17 @@ a { color: inherit; text-decoration: none; }
 
 .page-head { margin-bottom: 40px; }
 .page-head h1 {
-  font-size: 26px;
+  font-size: var(--fs-page);
   font-weight: 500;
-  letter-spacing: -0.01em;
+  line-height: var(--lh-tight);
+  letter-spacing: 0;
   margin: 0 0 10px;
 }
 .page-head p {
   color: var(--fg-muted);
   margin: 0;
-  max-width: 62ch;
+  max-width: var(--measure);
+  line-height: var(--lh-prose);
 }
 
 .stat-row {
@@ -198,8 +241,8 @@ a { color: inherit; text-decoration: none; }
   border-top: 1px solid var(--line-soft);
   flex-wrap: wrap;
 }
-.stat .v { font-size: 20px; font-family: var(--mono); color: var(--fg); }
-.stat .k { font-size: 11.5px; color: var(--fg-faint); margin-top: 1px; }
+.stat .v { font-size: var(--fs-num); font-family: var(--mono); line-height: var(--lh-tight); color: var(--fg); }
+.stat .k { font-size: var(--fs-label); color: var(--fg-faint); line-height: var(--lh-base); margin-top: 2px; }
 
 .sec { margin-bottom: 44px; }
 .sec-head {
@@ -210,13 +253,13 @@ a { color: inherit; text-decoration: none; }
   padding-bottom: 8px;
   border-bottom: 1px solid var(--line-soft);
 }
-.sec-head h2 { font-size: 15px; font-weight: 500; margin: 0; }
-.sec-head .hint { font-size: 12px; color: var(--fg-faint); }
+.sec-head h2 { font-size: var(--fs-head); font-weight: 500; line-height: var(--lh-tight); margin: 0; }
+.sec-head .hint { font-size: var(--fs-label); color: var(--fg-faint); }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
-  gap: 12px;
+  gap: 16px;
 }
 
 .card {
@@ -224,7 +267,7 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--bg-raised);
-  padding: 14px 15px 13px;
+  padding: 16px;
   transition: border-color 140ms ease, transform 140ms ease;
 }
 .card:hover { border-color: #3a3330; transform: translateY(-1px); }
@@ -232,14 +275,15 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 6px 8px;
   margin-bottom: 6px;
 }
-.card-name { font-size: 13.5px; color: var(--fg); }
+.card-name { font-size: var(--fs-body); color: var(--fg); flex: 1 1 auto; min-width: 0; }
 .card-desc {
-  font-size: 12.5px;
+  font-size: var(--fs-aux);
   color: var(--fg-muted);
-  line-height: 1.55;
+  line-height: var(--lh-base);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -250,7 +294,7 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   gap: 8px;
   margin-top: 10px;
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-family: var(--mono);
   color: var(--fg-faint);
 }
@@ -258,8 +302,8 @@ a { color: inherit; text-decoration: none; }
   color: var(--green);
   border: 1px solid rgba(127, 170, 127, 0.3);
   border-radius: 4px;
-  padding: 0 5px;
-  font-size: 10px;
+  padding: 1px 6px;
+  font-size: var(--fs-label);
 }
 
 /* ── 画廊 · 聚光墙 ──────────────────────────────────────────────────
@@ -323,6 +367,9 @@ a { color: inherit; text-decoration: none; }
 /* 关掉动效的人不该被灰罩住 */
 @media (prefers-reduced-motion: reduce) {
   .chroma-overlay, .chroma-fade { display: none; }
+  .card, .gcard, .gcard::before { transition: none; }
+  .card:hover, .gcard:hover { transform: none; }
+  .gcard:hover::before { opacity: 0; }
 }
 
 .seg {
@@ -333,20 +380,22 @@ a { color: inherit; text-decoration: none; }
 }
 .seg button {
   font-family: var(--sans);
-  font-size: 12px;
-  padding: 5px 13px;
+  font-size: var(--fs-aux);
+  padding: 7px 14px;
   background: transparent;
   border: 0;
-  color: var(--fg-faint);
+  color: var(--fg-muted);
   cursor: pointer;
+  /* button/input 不继承 body 的 line-height(UA 样式写死 normal),必须显式给 */
+  line-height: var(--lh-base);
 }
-.seg button:hover { color: var(--fg-muted); }
+.seg button:hover { color: var(--fg); }
 .seg button.on { background: var(--accent-soft); color: var(--fg); }
 
 .gallery {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(292px, 1fr));
-  gap: 14px;
+  gap: 16px;
 }
 
 .gcard {
@@ -416,6 +465,14 @@ a { color: inherit; text-decoration: none; }
     rgba(255, 255, 255, 0.014) 7px, rgba(255, 255, 255, 0.014) 14px
   );
 }
+/* iframe 挂载到 demo 首帧之间有几百毫秒空白,此时 .thumb-hold 已被卸掉,
+   卡片是一块纯 bg-sunk 死黑,看起来像坏掉。把斜纹做成常驻底,让 iframe 盖上去。 */
+.thumb--live {
+  background-image: repeating-linear-gradient(
+    -45deg, transparent, transparent 7px,
+    rgba(255, 255, 255, 0.014) 7px, rgba(255, 255, 255, 0.014) 14px
+  );
+}
 
 .thumb-code {
   position: absolute;
@@ -426,8 +483,12 @@ a { color: inherit; text-decoration: none; }
 .thumb-code pre {
   margin: 0;
   font-family: var(--mono);
-  font-size: 9.5px;
-  line-height: 1.52;
+  /* 装饰性纹理,不是给人读的字(Thumb.jsx 的 CodeThumb 切 14 行源码当画面,
+     整块 aria-hidden)。故意不进 --fs-* 级差表:跟着放大会让 16:10 的缩略图
+     里塞不下 14 行,画面从「代码质感」退化成「几行大字」,反而更难看。
+     整站放大时跳过这里。 */
+  font-size: 10px;
+  line-height: 1.55;
   color: #6f675f;
   white-space: pre;
   overflow: hidden;
@@ -443,7 +504,7 @@ a { color: inherit; text-decoration: none; }
   left: 13px;
   bottom: 10px;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: var(--fs-label);
   color: var(--fg-faint);
   letter-spacing: 0.02em;
 }
@@ -453,24 +514,25 @@ a { color: inherit; text-decoration: none; }
   display: grid;
   place-items: center;
   color: var(--fg-faint);
-  font-size: 12px;
+  font-size: var(--fs-aux);
 }
 
-.gcard-body { padding: 12px 14px 12px; display: flex; flex-direction: column; flex: 1; }
+.gcard-body { padding: 14px 16px 16px; display: flex; flex-direction: column; flex: 1; }
 .gcard-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 5px;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin-bottom: 6px;
 }
-.gcard-name { font-size: 13.5px; color: var(--fg); }
+.gcard-name { font-size: var(--fs-body); color: var(--fg); flex: 1 1 auto; min-width: 0; }
 .gcard-desc {
-  font-size: 12.5px;
+  font-size: var(--fs-aux);
   color: var(--fg-muted);
-  line-height: 1.55;
+  line-height: var(--lh-base);
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   flex: 1;
@@ -479,8 +541,8 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 9px;
-  font-size: 11px;
+  margin-top: 10px;
+  font-size: var(--fs-label);
   font-family: var(--mono);
   color: var(--fg-faint);
 }
@@ -488,16 +550,18 @@ a { color: inherit; text-decoration: none; }
 /* ── 详情页 ─────────────────────────────────────────────────────── */
 
 .crumb {
-  font-size: 12px;
+  font-size: var(--fs-aux);
   font-family: var(--mono);
   color: var(--fg-faint);
   margin-bottom: 14px;
 }
+.crumb a { display: inline-block; padding: 8px 6px; margin: -8px -6px; }
 .crumb a:hover { color: var(--accent); }
 
 .detail-head h1 {
-  font-size: 24px;
+  font-size: var(--fs-page);
   font-weight: 500;
+  line-height: var(--lh-tight);
   margin: 0 0 8px;
   display: flex;
   align-items: center;
@@ -506,7 +570,8 @@ a { color: inherit; text-decoration: none; }
 }
 .detail-desc {
   color: var(--fg-muted);
-  max-width: 74ch;
+  max-width: var(--measure);
+  line-height: var(--lh-prose);
   margin: 0 0 20px;
 }
 
@@ -520,29 +585,30 @@ a { color: inherit; text-decoration: none; }
   overflow: hidden;
   margin-bottom: 26px;
 }
-.meta-cell { background: var(--bg-raised); padding: 11px 14px; }
+.meta-cell { background: var(--bg-raised); padding: 14px 16px; }
 .meta-cell .k {
-  font-size: 10.5px;
+  font-size: var(--fs-label);
   color: var(--fg-faint);
   font-family: var(--mono);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: var(--lh-base);
 }
-.meta-cell .v { font-size: 13px; color: var(--fg); margin-top: 3px; word-break: break-word; }
+.meta-cell .v { font-size: var(--fs-body); color: var(--fg); margin-top: 4px; word-break: break-word; }
 .meta-cell .v a { border-bottom: 1px solid var(--line); }
 .meta-cell .v a:hover { color: var(--accent); border-color: var(--accent); }
 
 .notes {
   border-left: 2px solid var(--accent);
-  padding: 2px 0 2px 16px;
+  padding: 0 0 0 18px;
   margin: 0 0 26px;
   list-style: none;
 }
 .notes li {
   color: var(--fg-muted);
   margin-bottom: 8px;
-  font-size: 13px;
-  max-width: 78ch;
+  font-size: var(--fs-body);
+  line-height: var(--lh-prose);
+  max-width: var(--measure);
 }
 .notes li:last-child { margin-bottom: 0; }
 
@@ -555,7 +621,7 @@ a { color: inherit; text-decoration: none; }
   padding-bottom: 8px;
   border-bottom: 1px solid var(--line-soft);
 }
-.block-head h2 { font-size: 14px; font-weight: 500; margin: 0; }
+.block-head h2 { font-size: var(--fs-head); font-weight: 500; line-height: var(--lh-tight); margin: 0; }
 
 .frame-wrap {
   border: 1px solid var(--line);
@@ -570,7 +636,8 @@ a { color: inherit; text-decoration: none; }
   border: 0;
 }
 .frame-note {
-  font-size: 11.5px;
+  font-size: var(--fs-aux);
+  line-height: var(--lh-base);
   color: var(--fg-faint);
   font-family: var(--mono);
   margin-top: 7px;
@@ -586,22 +653,24 @@ a { color: inherit; text-decoration: none; }
 }
 .tab {
   font-family: var(--mono);
-  font-size: 12px;
-  padding: 6px 11px;
-  color: var(--fg-faint);
+  font-size: var(--fs-aux);
+  padding: 8px 12px;
+  color: var(--fg-muted);
   background: transparent;
   border: 1px solid transparent;
   border-radius: 7px 7px 0 0;
   cursor: pointer;
+  /* button/input 不继承 body 的 line-height(UA 样式写死 normal),必须显式给 */
+  line-height: var(--lh-base);
 }
-.tab:hover { color: var(--fg-muted); }
+.tab:hover { color: var(--fg); }
 .tab.on {
   color: var(--fg);
   background: var(--bg-sunk);
   border-color: var(--line);
   border-bottom-color: var(--bg-sunk);
 }
-.tab .n { color: var(--fg-faint); margin-left: 6px; font-size: 10.5px; }
+.tab .n { color: var(--fg-faint); margin-left: 6px; font-size: var(--fs-label); }
 
 .code-box {
   border: 1px solid var(--line);
@@ -613,21 +682,23 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 7px 12px;
+  padding: 8px 16px;
   border-bottom: 1px solid var(--line-soft);
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--fs-label);
   color: var(--fg-faint);
 }
 .btn {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--fs-aux);
   color: var(--fg-muted);
   background: var(--bg-raised);
   border: 1px solid var(--line);
   border-radius: 5px;
-  padding: 3px 9px;
+  padding: 6px 12px;
   cursor: pointer;
+  /* button/input 不继承 body 的 line-height(UA 样式写死 normal),必须显式给 */
+  line-height: var(--lh-base);
 }
 .btn:hover { color: var(--fg); border-color: #3a3330; }
 .btn.done { color: var(--green); border-color: rgba(127, 170, 127, 0.34); }
@@ -636,10 +707,10 @@ pre.code {
   margin: 0;
   padding: 14px 16px;
   overflow: auto;
-  max-height: 620px;
+  max-height: 700px;
   font-family: var(--mono);
-  font-size: 12px;
-  line-height: 1.62;
+  font-size: var(--fs-aux);
+  line-height: var(--lh-code);
   color: #cfc7bd;
   tab-size: 2;
 }
@@ -655,10 +726,11 @@ pre.code::-webkit-scrollbar-track { background: transparent; }
   padding: 9px 2px;
 }
 .hit:hover { background: rgba(255, 255, 255, 0.018); }
-.hit-loc { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+.hit-loc { font-family: var(--mono); font-size: var(--fs-label); color: var(--accent); }
 .hit-txt {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--fs-aux);
+  line-height: var(--lh-code);
   color: var(--fg-muted);
   white-space: pre-wrap;
   word-break: break-all;
@@ -666,10 +738,33 @@ pre.code::-webkit-scrollbar-track { background: transparent; }
 }
 
 .empty {
-  color: var(--fg-faint);
-  font-size: 13px;
+  color: var(--fg-muted);
+  font-size: var(--fs-body);
   padding: 24px 0;
 }
+
+/* 键盘焦点 —— 挂到公网之前必须有。
+   .seg 和 .sidebar 都是 overflow 裁剪容器,外扩的 outline 会被裁掉,
+   所以里面的元素一律用 outline-offset 负值走内描边。 */
+.item:focus-visible,
+.seg button:focus-visible,
+.tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.card:focus-visible,
+.gcard:focus-visible,
+.hit:focus-visible,
+.btn:focus-visible,
+.crumb a:focus-visible,
+.meta-cell .v a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.search:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* 聚光墙的 overlay(z-index:3)/ fade(z-index:4)会把焦点卡一起压暗,
+   键盘用户全程不触发 pointermove,整面墙永远是灰的 —— 把焦点卡抬出来 */
+.gcard:focus-visible { z-index: 5; }
 
 @media (max-width: 880px) {
   .shell { flex-direction: column; }

@@ -6,10 +6,15 @@
 //
 // owner 字段是这个库最要紧的一栏:
 //   self    — 完全自己写的
-//   adapted — 在 React Bits(或其它来源)基础上大幅改造过:换 token、改挂载方式、加交互
+//   adapted — 拿别处(多数是 React Bits)当起点,自己大幅改过:换 token、改挂载方式、加交互
 //   ported  — 基本原样移植,只是搬进项目
 //   unknown — 来源没标注,还没核实
-// 纯私人使用所以三类都收,但别把 ported 的当自己的作品往外拿。
+//
+// self 和 adapted 都算自己的作品 —— 灵感来自别处、代码是自己改出来的,那就是自己的。
+// ported 不算,那一档只是把别人的东西搬了个地方。
+//
+// source 字段单独记上游是谁(React Bits / React Bits Pro / …)。站点公开之后
+// 这一栏会跟着组件名一起显示 —— 改造件标出起点,不是心虚,是说清楚哪部分是自己做的。
 
 export const REPOS = {
   flipwall: null, // 还没有远端 —— 2026-08-12 查:连本地 git 都没有
@@ -187,7 +192,7 @@ export const COMPONENTS = [
   },
   {
     slug: 'click-spark', cat: 'motion', name: 'ClickSpark 点击火花',
-    from: 'AI互动故事', repo: 'aistory', owner: 'adapted',
+    from: 'AI互动故事', repo: 'aistory', owner: 'adapted', source: 'React Bits',
     deps: [], preview: null,
     desc: '点击处迸出火花。React Bits 原件的改造版。',
     notes: [
@@ -326,25 +331,25 @@ export const COMPONENTS = [
   },
   {
     slug: 'depth-card', cat: 'ui', name: 'depth-card 景深卡',
-    from: 'AI互动故事', repo: 'aistory', owner: 'ported',
+    from: 'AI互动故事', repo: 'aistory', owner: 'ported', source: 'React Bits',
     deps: [], preview: null,
     desc: 'React Bits 组件,基本原样移植。',
   },
   {
     slug: 'animated-list', cat: 'ui', name: 'animated-list',
-    from: 'AI互动故事', repo: 'aistory', owner: 'adapted',
+    from: 'AI互动故事', repo: 'aistory', owner: 'adapted', source: 'React Bits',
     deps: ['motion'], preview: null,
     desc: 'React Bits 的动画列表,386 行,项目里改过。',
   },
   {
     slug: 'stepper', cat: 'ui', name: 'Stepper 分步器',
-    from: 'AI互动故事', repo: 'aistory', owner: 'adapted',
+    from: 'AI互动故事', repo: 'aistory', owner: 'adapted', source: 'React Bits',
     deps: ['motion'], preview: null,
     desc: 'React Bits Stepper,onboarding 流程用,改过步进逻辑。',
   },
   {
     slug: 'line-sidebar', cat: 'ui', name: 'LineSidebar',
-    from: 'AI互动故事', repo: 'aistory', owner: 'ported',
+    from: 'AI互动故事', repo: 'aistory', owner: 'ported', source: 'React Bits',
     deps: [], preview: null,
     desc: 'React Bits LineSidebar,原样移植,仅追加 .is-disabled 一条样式。',
   },
@@ -364,37 +369,37 @@ export const COMPONENTS = [
   },
   {
     slug: 'dock', cat: 'nav', name: 'Dock 停靠栏',
-    from: 'AI互动故事', repo: 'aistory', owner: 'adapted',
+    from: 'AI互动故事', repo: 'aistory', owner: 'adapted', source: 'React Bits',
     deps: ['motion'], preview: null,
     desc: 'React Bits Dock,本地 vendored:改吃沐言 token + 加触摸放大。',
   },
   {
     slug: 'pill-nav', cat: 'nav', name: 'PillNav 药丸导航',
-    from: 'AI互动故事', repo: 'aistory', owner: 'adapted',
+    from: 'AI互动故事', repo: 'aistory', owner: 'adapted', source: 'React Bits',
     deps: ['gsap'], preview: null,
     desc: 'React Bits PillNav,vendored:文字 logo + 吃语义 token + 适配 HashRouter。',
   },
   {
     slug: 'flowing-menu', cat: 'nav', name: 'FlowingMenu 流动菜单',
-    from: 'AI互动故事', repo: 'aistory', owner: 'adapted',
+    from: 'AI互动故事', repo: 'aistory', owner: 'adapted', source: 'React Bits',
     deps: ['gsap'], preview: null,
     desc: 'React Bits Flowing Menu,vendored:文字流动带、吃 token、加触摸触发。',
   },
   {
     slug: 'staggered-menu', cat: 'nav', name: 'StaggeredMenu 错落菜单',
-    from: 'AI互动故事', repo: 'aistory', owner: 'adapted',
+    from: 'AI互动故事', repo: 'aistory', owner: 'adapted', source: 'React Bits',
     deps: ['gsap'], preview: null,
     desc: '710 行,整个库里单文件最大的一件。React Bits StaggeredMenu 的 JS+CSS 变体,适配沐言。',
   },
   {
     slug: 'navigation-12', cat: 'nav', name: 'navigation-12',
-    from: 'ripple-site', repo: 'ripple', owner: 'adapted',
+    from: 'ripple-site', repo: 'ripple', owner: 'adapted', source: 'React Bits Pro',
     deps: ['motion'], preview: null,
     desc: 'React Bits Pro 的 block 起手,按 Ripple 改造。229 行。',
   },
   {
     slug: 'footer-1', cat: 'nav', name: 'footer-1',
-    from: 'ripple-site', repo: 'ripple', owner: 'adapted',
+    from: 'ripple-site', repo: 'ripple', owner: 'adapted', source: 'React Bits Pro',
     deps: ['motion', 'react-router-dom'], preview: null,
     desc: 'React Bits Pro block,按 Ripple 改造。',
   },
@@ -409,19 +414,19 @@ export const COMPONENTS = [
   },
   {
     slug: 'shiny-text', cat: 'text', name: 'ShinyText 扫光文字',
-    from: 'AI互动故事', repo: 'aistory', owner: 'ported',
+    from: 'AI互动故事', repo: 'aistory', owner: 'ported', source: 'React Bits',
     deps: [], preview: null,
     desc: 'React Bits ShinyText,JS+CSS 版原样移植。',
   },
   {
     slug: 'count-up', cat: 'text', name: 'CountUp 数字滚动',
-    from: 'AI互动故事', repo: 'aistory', owner: 'ported',
+    from: 'AI互动故事', repo: 'aistory', owner: 'ported', source: 'React Bits',
     deps: [], preview: null,
     desc: 'React Bits CountUp,JS 版原样移植。',
   },
   {
     slug: 'blur-highlight', cat: 'text', name: 'blur-highlight 模糊高亮',
-    from: 'AI互动故事', repo: 'aistory', owner: 'ported',
+    from: 'AI互动故事', repo: 'aistory', owner: 'ported', source: 'React Bits',
     deps: ['motion'], preview: null,
     desc: 'React Bits 组件。ripple-site 里也有一份(310 行,略有出入)。',
   },
@@ -429,32 +434,32 @@ export const COMPONENTS = [
   // ───────────────────────────── 页面区块 ─────────────────────────────
   {
     slug: 'hero-21', cat: 'block', name: 'hero-21 首屏',
-    from: 'ripple-site', repo: 'ripple', owner: 'adapted',
+    from: 'ripple-site', repo: 'ripple', owner: 'adapted', source: 'React Bits Pro',
     deps: ['motion'], preview: null, desc: 'React Bits Pro block,按 Ripple 改造。',
   },
   {
     slug: 'features-1', cat: 'block', name: 'features-1',
-    from: 'ripple-site', repo: 'ripple', owner: 'adapted',
+    from: 'ripple-site', repo: 'ripple', owner: 'adapted', source: 'React Bits Pro',
     deps: ['motion', 'lucide-react'], preview: null, desc: 'React Bits Pro block,按 Ripple 改造。',
   },
   {
     slug: 'features-6', cat: 'block', name: 'features-6',
-    from: 'ripple-site', repo: 'ripple', owner: 'adapted',
+    from: 'ripple-site', repo: 'ripple', owner: 'adapted', source: 'React Bits Pro',
     deps: ['motion'], preview: null, desc: 'React Bits Pro block,按 Ripple 改造。185 行。',
   },
   {
     slug: 'faq-1', cat: 'block', name: 'faq-1 折叠问答',
-    from: 'ripple-site', repo: 'ripple', owner: 'adapted',
+    from: 'ripple-site', repo: 'ripple', owner: 'adapted', source: 'React Bits Pro',
     deps: ['lucide-react'], preview: null, desc: 'React Bits Pro block,按 Ripple 改造。',
   },
   {
     slug: 'how-it-works-4', cat: 'block', name: 'how-it-works-4',
-    from: 'ripple-site', repo: 'ripple', owner: 'adapted',
+    from: 'ripple-site', repo: 'ripple', owner: 'adapted', source: 'React Bits Pro',
     deps: ['motion'], preview: null, desc: 'React Bits Pro block,按 Ripple 改造。256 行。',
   },
   {
     slug: 'waitlist-6', cat: 'block', name: 'waitlist-6 等候名单',
-    from: 'ripple-site', repo: 'ripple', owner: 'adapted',
+    from: 'ripple-site', repo: 'ripple', owner: 'adapted', source: 'React Bits Pro',
     deps: ['motion'], preview: null, desc: 'React Bits Pro block,按 Ripple 改造。',
   },
   {
