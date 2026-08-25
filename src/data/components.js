@@ -21,6 +21,7 @@ export const REPOS = {
   yuqin: 'https://github.com/toffemoon/toffeemoon',
   yorha: 'https://github.com/yorhagengyue/yorha-a2-team',
   bookshelf: null, // 本地 Desktop/书架轮播,已 git init,未推远端
+  flipbook: null, // 本地 Desktop/翻页书,已 git init,未推远端
 }
 
 export const CATEGORIES = [
@@ -247,6 +248,21 @@ export const COMPONENTS = [
     from: 'AI互动故事', repo: 'aistory', owner: 'self',
     deps: ['react-easy-crop'], preview: null,
     desc: '表单里的图片上传 + 裁剪字段,配套 image.js(File → dataURL、裁剪导出)。',
+  },
+  {
+    slug: 'flip-book', cat: 'ui', name: '翻页书',
+    from: '翻页书', repo: 'flipbook', owner: 'self',
+    deps: [],
+    preview: null,
+    desc: '一组图片变成一本能拖着翻的书。硬折页 —— 纸面保持平面,只有折痕直线和阴影,不上 WebGL。',
+    notes: [
+      '折页是镜像反射不是绕轴旋转:折痕线取抓取角到指针的垂直平分线,掀起的那块是整页关于它的 2D 反射再 clip 到一侧。横着拖得竖直折痕,斜着拖得斜角掀起 —— 一套公式两种手感。绕书脊 rotateY 的 turn.js 骨架做不出斜折边。',
+      '页钉在书脊上:书脊必须整条落在折痕的留下侧,展开即「抓着的角到书脊任一端的距离不能比原来更远」。可达区域是两个圆盘的交,而两圆恰好交于抓取角和它关于书脊的镜像,所以最近点不用解圆交方程。再加一条上下 band,否则往正上方拽会连出横跨整页的陡对角线。',
+      '页面比例从照片反推(pageRatio 默认 auto)。定死一个数意味着怎么摆都得付代价 —— contain 留白不齐、cover 裁掉一大块,同一个根:页不合图。每张图都「想要」一个比例(竖图要自己的,横图铺跨页所以要一半),取几何平均即整体损失最小。',
+      '组件根节点 overflow: clip 是必须的:掀起的纸伸到书本外面会算进祖先的可滚动区域,页面长出滚动条 → 容器变窄 → ResizeObserver 重排,拖一下缩一次。',
+      '拖动时每帧只改 3 个元素的 transform / clip-path / background-image,直接操作 DOM ref 不过 React state。翻完那一帧推进页码、换内容、重置变换必须在同一个 rAF 里(flushSync),拆两帧会闪。',
+      '库里第一个不从别处收编、直接为组件库写的件。fold.js / paginate.js 是纯函数,原项目里有 57 条 vitest 单测(含「书脊永不被掀起」的网格不变量),这边没有 test runner 所以没搬。',
+    ],
   },
   {
     slug: 'card-carousel-dom', cat: 'ui', name: 'CardCarousel(DOM 版)',

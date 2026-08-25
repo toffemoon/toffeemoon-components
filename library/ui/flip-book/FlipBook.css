@@ -1,0 +1,204 @@
+.fb {
+  --fb-paper: #f2efe8;
+  --fb-paper-edge: #e2ddd2;
+  --fb-ink: #6b6a66;
+  --fb-ink-dim: #9d9b95;
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+
+  /* 掀起的纸经过反射变换后会伸到书本外面(实测最多一百多 px),
+     那部分会算进祖先的可滚动区域 —— 页面因此长出滚动条,容器跟着变窄,
+     ResizeObserver 一响书就按更小的尺寸重排,拖一下画面缩一次,自己咬自己。
+     组件不该把自己的溢出捅给外面的布局,所以在这里就地夹掉。
+     clip 比 hidden 干净(不建立滚动容器),不认识 clip 的浏览器落回 hidden。 */
+  overflow: hidden;
+  overflow: clip;
+}
+
+.fb-book {
+  position: relative;
+  flex: none;
+  touch-action: none; /* 不让页面滚动把手势抢走 */
+  user-select: none;
+  -webkit-user-select: none;
+  background: var(--fb-paper);
+  box-shadow:
+    0 1px 2px rgba(40, 36, 30, 0.16),
+    0 18px 44px -18px rgba(40, 36, 30, 0.34);
+}
+
+/* 一套翻页区 = 一页宽的三层。左右各一套,互不打扰。 */
+.fb-zone {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+}
+
+.fb-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--fb-paper);
+  backface-visibility: hidden;
+}
+
+.fb-under {
+  z-index: 0;
+}
+
+.fb-front {
+  z-index: 1;
+}
+
+/* drop-shadow 挂在外层包裹上,不参与反射变换 ——
+   挂在 .fb-back 自己身上,阴影会跟着折痕一起翻,方向就错了。
+   也不能用 box-shadow:它只认矩形,不认 clip-path 之后的形状。
+   两层:一层紧贴自由边的接触阴影,一层散开的落影。 */
+.fb-back-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(-2px 2px 3px rgba(40, 36, 30, 0.34))
+    drop-shadow(-8px 12px 20px rgba(40, 36, 30, 0.3));
+}
+
+.fb-back {
+  /* 反射矩阵是在「页面左上角为原点」的坐标系里推出来的,
+     transform-origin 必须跟着改,默认的 center 会把整块纸摆错位置。 */
+  transform-origin: 0 0;
+  background: var(--fb-paper);
+}
+
+/* 内容印在纸的背面,所以先反镜像一次;反射矩阵行列式为 -1,会再镜像一次,两次抵消 */
+.fb-mirror {
+  position: absolute;
+  inset: 0;
+  transform: scaleX(-1);
+}
+
+/* 没有真实内容时的纸背 —— 纸色加一层极轻的斜向纹理 */
+.fb-back-paper {
+  background-image:
+    repeating-linear-gradient(
+      108deg,
+      rgba(120, 112, 96, 0.035) 0px,
+      rgba(120, 112, 96, 0.035) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+  background-color: var(--fb-paper-edge);
+}
+
+/* 默认满铺到边。
+   用 contain 的话每张图按自己的宽高比留白 —— 0.75 的竖图留 63px、0.65 的留 15px,
+   同一个展开面左边像装裱、右边像出血,整本书看着不是一套东西。
+   fit="contain" 保留了那条路,但要接受这种不齐。 */
+.fb-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.fb[data-fit='contain'] .fb-img {
+  object-fit: contain;
+}
+
+/* 跨页图:按整个展开面的尺寸 contain,再左右偏移切成两半 */
+.fb-spread {
+  position: absolute;
+  top: 0;
+}
+
+/* 折痕阴影,backgroundImage 每帧由 fold.js 算好写进来 */
+.fb-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 书脊中缝 */
+.fb-gutter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 46px;
+  margin-left: -23px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(60, 52, 40, 0) 0%,
+    rgba(60, 52, 40, 0.09) 42%,
+    rgba(60, 52, 40, 0.16) 50%,
+    rgba(60, 52, 40, 0.09) 58%,
+    rgba(60, 52, 40, 0) 100%
+  );
+}
+
+/* ── 控件 ─────────────────────────────────────────────────────────── */
+.fb-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: none;
+  /* 掀到书本外面的纸会飘到这一带来,别让它盖住页码 */
+  position: relative;
+  z-index: 5;
+}
+
+.fb-meta {
+  text-align: center;
+  min-width: 210px;
+}
+
+.fb-counter {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--fb-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.fb-hint {
+  margin-top: 5px;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--fb-ink-dim);
+  text-transform: uppercase;
+}
+
+.fb-arrow {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(90, 84, 74, 0.22);
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--fb-ink);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  transition: opacity 0.2s, border-color 0.2s;
+}
+
+.fb-arrow:hover:not(:disabled) {
+  border-color: rgba(90, 84, 74, 0.45);
+}
+
+.fb-arrow:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
