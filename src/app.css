@@ -661,8 +661,13 @@ a { color: inherit; text-decoration: none; }
 .frame-wrap iframe {
   display: block;
   width: 100%;
+  /* 高度由 Detail.jsx 按 iframe 内容实测后写进 style —— 写死 560 的话,
+     只差一百来 px 的演示台会被白白截断,右边挂一条滚动条。
+     这里的 560 只是量出来之前的初值。 */
   height: 560px;
+  min-height: 320px;
   border: 0;
+  transition: height 0.18s ease;
 }
 .frame-note {
   font-size: var(--fs-aux);

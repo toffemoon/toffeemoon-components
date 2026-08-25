@@ -38,7 +38,9 @@ export default function Demo() {
 
   return (
     <div className="stage" style={{ position: 'relative', background: '#08080a' }}>
-      <div style={{ position: 'relative', width: 560, height: 330 }}>
+      {/* 写死 560×330 的话,框一宽它就缩在正中间一小块,四周全是黑,
+          看着像坏了而不像演示。改成跟着容器走,比例锁住。 */}
+      <div style={{ position: 'relative', width: 'min(100%, 920px)', aspectRatio: '56 / 33' }}>
         <FrameBorder key={i} {...p.props}>
           {/* children 落在 .frame-border-content 上,那层已铺满容器(见 frame-border.css) */}
           <div style={{ width: '100%', height: '100%', display: 'grid', placeItems: 'center' }}>

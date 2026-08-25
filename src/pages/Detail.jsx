@@ -1,8 +1,81 @@
+import { useCallback, useEffect, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { OWNERS, REPOS, bySlug, CATEGORIES } from '../data/components.js'
 import { filesOf } from '../data/sources.js'
 import { previewUrl } from '../data/demos.js'
 import CodeView from '../components/CodeView.jsx'
+
+// 预览框按 iframe 里的真实内容高度撑开。
+//
+// 写死 560px 的代价实测过:57 个演示台里 20 个会溢出,其中 9 个只差 27–310px,
+// 那点差距换来的是右边一条滚动条 + 内容被切。iframe 和主站同源,所以可以直接
+// 读 contentDocument 量。
+//
+// 量的时候不能只看 documentElement —— RippleStage 那批是内层 div 自己
+// overflow:auto,文档本身永远不溢出,滚动条挂在里面。
+const FIT_MIN = 360
+// 1250 是量出来的:封顶 1100 时 yuqin-cards 只差 118、remotion-kit 只差 40,
+// 多给这一点就能整个展开。再往上就只剩整页级的演示台了,那些封多高都滚不完,
+// 且会把下面的源码顶到天边去。
+const FIT_MAX = 1250
+
+function useFitFrame(url) {
+  const ref = useRef(null)
+
+  const fit = useCallback(() => {
+    const f = ref.current
+    if (!f) return
+    let doc
+    try {
+      doc = f.contentDocument
+    } catch {
+      return // 万一变成跨源就算了,保持初值
+    }
+    if (!doc?.body) return
+    const win = doc.defaultView
+    let h = doc.documentElement.scrollHeight
+    for (const el of doc.querySelectorAll('body *')) {
+      const cs = win.getComputedStyle(el)
+      if (!/auto|scroll/.test(cs.overflowY)) continue
+      h = Math.max(h, el.scrollHeight + el.getBoundingClientRect().top)
+    }
+    // 留几像素余量:边框和亚像素取整会剩个位数的差,不补的话滚动条为那 4px 又冒出来
+    const next = Math.round(Math.min(Math.max(h + 6, FIT_MIN), FIT_MAX))
+    // 只在差得明显时才写,免得和 iframe 自身的高度变化互相追着跑
+    if (Math.abs(next - f.clientHeight) > 8) f.style.height = next + 'px'
+  }, [])
+
+  useEffect(() => {
+    const f = ref.current
+    if (!f || !url) return
+    f.style.height = ''
+    let ro
+    const attach = () => {
+      fit()
+      try {
+        const doc = f.contentDocument
+        if (doc?.body && doc.defaultView?.ResizeObserver) {
+          ro?.disconnect()
+          ro = new doc.defaultView.ResizeObserver(fit)
+          ro.observe(doc.body)
+        }
+      } catch {
+        /* 跨源就算了 */
+      }
+    }
+    f.addEventListener('load', attach)
+    attach() // 已经在缓存里的话 load 不会再来一次
+    // 三维场景 / 异步素材加载完还会再变一次,补几拍
+    const timers = [300, 900, 2000, 4000].map((t) => setTimeout(fit, t))
+    return () => {
+      f.removeEventListener('load', attach)
+      ro?.disconnect()
+      timers.forEach(clearTimeout)
+    }
+  }, [url, fit])
+
+  return ref
+}
 
 export default function Detail() {
   const { cat, slug } = useParams()
@@ -16,6 +89,7 @@ export default function Detail() {
   const catName = CATEGORIES.find((x) => x.id === c.cat)?.name || c.cat
   const url = previewUrl(c)
   const isDemo = !!url && !c.preview
+  const frameRef = useFitFrame(url)
 
   return (
     <>
@@ -91,7 +165,7 @@ export default function Detail() {
             </a>
           </div>
           <div className="frame-wrap">
-            <iframe src={url} title={c.name} loading="lazy" />
+            <iframe ref={frameRef} src={url} title={c.name} loading="lazy" scrolling="no" />
           </div>
           <div className="frame-note">
             {isDemo

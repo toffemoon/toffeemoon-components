@@ -4,6 +4,12 @@
 
 * { box-sizing: border-box; }
 
+/* 演示台是「展示」不是「阅读」,右边挂一条滚动条很出戏。
+   这里只藏掉滚动条的样子,滚轮和触控板照常能滚 —— 真要看全的走「新窗口打开」。
+   外面的详情页会按内容把 iframe 撑高,大部分演示台其实根本滚不动。 */
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
 html, body, #stage { height: 100%; margin: 0; }
 
 body {
