@@ -26,56 +26,61 @@ export default function Detail() {
       <div className="detail-head">
         <h1>
           {c.name}
-          <span className="prov">
-            <span className={'tag-owner o-' + o.tone}>{o.label}</span>
-            {c.source && <span className="tag-src">源自 {c.source}</span>}
-          </span>
+          <span className={'tag-owner o-' + o.tone}>{o.label}</span>
         </h1>
         <p className="detail-desc">{c.desc}</p>
       </div>
 
-      <div className="meta">
-        <div className="meta-cell">
-          <div className="k">来自</div>
-          <div className="v">{c.from}</div>
-        </div>
-        {c.source && (
-          <div className="meta-cell">
-            <div className="k">上游</div>
-            <div className="v">{c.source}</div>
-          </div>
-        )}
-        <div className="meta-cell">
-          <div className="k">远端备份</div>
-          <div className="v">
-            {repoUrl ? (
-              <a href={repoUrl} target="_blank" rel="noreferrer">
-                {repoUrl.replace('https://github.com/', '')}
-              </a>
+      {/* 三个区块,和上面的描述共用一个宽度 —— 原来那一排横铺到 1600px,
+          旁边的正文却锁在 34em,两个宽度并排看着就是散的。 */}
+      <div className="blocks">
+        <section className="blk">
+          <h2 className="blk-k">灵感来源</h2>
+          <div className="blk-v">
+            <span className={'tag-owner o-' + o.tone}>{o.label}</span>
+            {c.source ? (
+              <span>源自 {c.source},代码是自己改出来的</span>
+            ) : c.owner === 'self' ? (
+              <span>没有上游,从零写的</span>
             ) : (
-              '尚未备份'
+              <span>出处没标注,还没核实</span>
             )}
           </div>
-        </div>
-        <div className="meta-cell">
-          <div className="k">依赖</div>
-          <div className="v">{c.deps?.length ? c.deps.join(' · ') : '无'}</div>
-        </div>
-        <div className="meta-cell">
-          <div className="k">源码</div>
-          <div className="v">
-            {files.length} 文件 · {files.reduce((n, f) => n + f.lines, 0)} 行
-          </div>
-        </div>
-      </div>
+        </section>
 
-      {c.notes?.length > 0 && (
-        <ul className="notes">
-          {c.notes.map((n, i) => (
-            <li key={i}>{n}</li>
-          ))}
-        </ul>
-      )}
+        <section className="blk">
+          <h2 className="blk-k">源码和依赖</h2>
+          <dl className="blk-rows">
+            <dt>源码</dt>
+            <dd>
+              {files.length} 文件 · {files.reduce((n, f) => n + f.lines, 0)} 行
+            </dd>
+            <dt>依赖</dt>
+            <dd>{c.deps?.length ? c.deps.join(' · ') : '无'}</dd>
+            <dt>远端备份</dt>
+            <dd>
+              {repoUrl ? (
+                <a href={repoUrl} target="_blank" rel="noreferrer">
+                  {repoUrl.replace('https://github.com/', '')}
+                </a>
+              ) : (
+                '尚未备份'
+              )}
+            </dd>
+          </dl>
+        </section>
+
+        {c.notes?.length > 0 && (
+          <section className="blk">
+            <h2 className="blk-k">解释</h2>
+            <ul className="notes">
+              {c.notes.map((n, i) => (
+                <li key={i}>{n}</li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
 
       {url && (
         <>

@@ -45,7 +45,7 @@
 
   /* 行长 —— 用 em 锁「每行中文字数」。不用 ch:ch 取字体里「0」的字宽,
      Segoe UI 0.539em、mac 那套又不同,同一页在两个系统上行长会漂。 */
-  --measure: 34em;
+  --measure: 40em;
 
   --sidebar-w: 264px;
   --radius: 10px;
@@ -575,9 +575,13 @@ a { color: inherit; text-decoration: none; }
   margin: 0 0 20px;
 }
 
-.meta {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+/* 详情页的三个区块:灵感来源 / 源码和依赖 / 解释。
+   和上面的 .detail-desc 共用 --measure —— 原来那一排 auto-fit 横铺到 1600px,
+   旁边的正文却锁在 34em,两个宽度并排看就是散的,文字显得莫名其妙地早换行。 */
+.blocks {
+  max-width: var(--measure);
+  display: flex;
+  flex-direction: column;
   gap: 1px;
   background: var(--line-soft);
   border: 1px solid var(--line-soft);
@@ -585,22 +589,39 @@ a { color: inherit; text-decoration: none; }
   overflow: hidden;
   margin-bottom: 26px;
 }
-.meta-cell { background: var(--bg-raised); padding: 14px 16px; }
-.meta-cell .k {
+.blk { background: var(--bg-raised); padding: 15px 18px; }
+.blk-k {
   font-size: var(--fs-label);
+  font-weight: 400;
   color: var(--fg-faint);
   font-family: var(--mono);
   letter-spacing: 0.02em;
   line-height: var(--lh-base);
+  margin: 0 0 9px;
 }
-.meta-cell .v { font-size: var(--fs-body); color: var(--fg); margin-top: 4px; word-break: break-word; }
-.meta-cell .v a { border-bottom: 1px solid var(--line); }
-.meta-cell .v a:hover { color: var(--accent); border-color: var(--accent); }
+.blk-v {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--fg-muted);
+  font-size: var(--fs-aux);
+}
+.blk-rows {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 7px 18px;
+  margin: 0;
+  font-size: var(--fs-aux);
+}
+.blk-rows dt { color: var(--fg-faint); }
+.blk-rows dd { margin: 0; color: var(--fg); word-break: break-word; }
+.blk-rows dd a { border-bottom: 1px solid var(--line); }
+.blk-rows dd a:hover { color: var(--accent); border-color: var(--accent); }
 
 .notes {
-  border-left: 2px solid var(--accent);
-  padding: 0 0 0 18px;
-  margin: 0 0 26px;
+  padding: 0;
+  margin: 0;
   list-style: none;
 }
 .notes li {
@@ -608,7 +629,6 @@ a { color: inherit; text-decoration: none; }
   margin-bottom: 8px;
   font-size: var(--fs-body);
   line-height: var(--lh-prose);
-  max-width: var(--measure);
 }
 .notes li:last-child { margin-bottom: 0; }
 
@@ -757,7 +777,7 @@ pre.code::-webkit-scrollbar-track { background: transparent; }
 .hit:focus-visible,
 .btn:focus-visible,
 .crumb a:focus-visible,
-.meta-cell .v a:focus-visible {
+.blk-rows dd a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
