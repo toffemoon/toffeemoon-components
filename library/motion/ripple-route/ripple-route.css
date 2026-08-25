@@ -1,0 +1,65 @@
+/* 涟漪入场 / 退场 —— 这一条才是这组转场的本体。
+   原样收自 AI互动故事 frontend-next/src/App.css(涟漪那一段)+ styles/tokens.css 里
+   它依赖的两个变量。
+   ────────────────────────────────────────────────────────────────────
+   收编时漏了这个文件,只搬了同目录的 transition-tuning.css —— 那份是**给这两个 class
+   改时长的覆写**,而 class 的动画定义在这里。少了这半边,transition-tuning.css 里的
+   `html .page-reveal { animation-duration: 0.65s }` 改的是一个不存在的动画,
+   演示台自然什么都看不到。2026-08-26 补齐。
+   ──────────────────────────────────────────────────────────────────── */
+
+/* 原项目里这两个变量在 styles/tokens.css。这里给同值的默认,让组件能单独跑;
+   接进有 token 体系的项目时,外层定义的同名变量会自然压过来。
+   —— 演示台就是靠改这两个变量来调「速度」和「曲率」的,它们是组件真实的旋钮,
+   不是为了演示另造的参数。 */
+:root {
+  --mu-reveal-dur: 0.9s;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 页面切换 = 涟漪圆形揭示(切路由 key 变 → 重跑)。
+   circle(150vmax) ≈ 全覆盖任意尺寸 / 可滚动页;动画无 fill,结束回退到无裁切
+   → 对页内 fixed 弹层安全。
+   用 clip-path 不用 transform(transform 会成 fixed 后代的包含块);
+   动画跑不跑页面都可见(基态无裁切)。 */
+
+/* 「扩散」入场(进入 / 前进):目标页挂载时 clip-path 从点击点漾开。
+   原点 --ripple-x/y 由外层写(缺省 / 看板 → 居中)。 */
+@keyframes mu-ripple-in {
+  from {
+    clip-path: circle(0vmax at var(--ripple-x, 50%) var(--ripple-y, 50%));
+    opacity: 0.55;
+  }
+  to {
+    clip-path: circle(150vmax at var(--ripple-x, 50%) var(--ripple-y, 50%));
+    opacity: 1;
+  }
+}
+.page-reveal {
+  animation: mu-ripple-in var(--mu-reveal-dur) var(--ease-out);
+}
+
+/* 「收拢」退场(离开 / 返回):克隆当前页盖在最上层(.route-leave,定位样式由 JS 内联),
+   clip-path 圆 150vmax→0vmax 往点击点收,圆外露出底下已经切好的目标页。
+   和入场同一个圆、同一个时长、同一条缓动,只是方向相反、谁在上相反。 */
+@keyframes mu-ripple-out {
+  from {
+    clip-path: circle(150vmax at var(--lx, 50%) var(--ly, 50%));
+  }
+  to {
+    clip-path: circle(0vmax at var(--lx, 50%) var(--ly, 50%));
+  }
+}
+.route-leave {
+  animation: mu-ripple-out var(--mu-reveal-dur) var(--ease-out) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-reveal {
+    animation: none;
+  }
+  .route-leave {
+    animation: none;
+    opacity: 0;
+  }
+}

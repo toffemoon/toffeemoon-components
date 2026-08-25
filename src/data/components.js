@@ -167,11 +167,19 @@ export const COMPONENTS = [
     ],
   },
   {
-    slug: 'ink-transition', cat: 'motion', name: '水墨路由转场',
+    slug: 'ripple-route', cat: 'motion', name: '涟漪入场 / 退场',
     from: 'AI互动故事', repo: 'aistory', owner: 'self',
     deps: [], preview: null,
-    desc: '页面切换时的水墨扩散转场,配套 transitionNav 把 router 跳转包进转场时序里。',
+    desc: '路由切换的涟漪转场,两个方向:扩散(进入)从落点漾开,收拢(离开)往落点收。时长和缓动曲线可调。',
+    notes: [
+      '两种各自独立的转场,按场景二选一不组合。扩散:目标页 clip-path 圆从落点 0→150vmax 漾开,盖在旧页之上。收拢:把当前页克隆一层盖最上面,目标页渲染在底下,克隆层的圆从 150vmax 收到 0,圆划过的地方露出目标页。同圆、同时长、同缓动,只是方向和谁在上相反。',
+      '用 clip-path 不用 transform —— transform 会变成 fixed 后代的包含块,页内的弹层会被带着一起动。动画不加 fill,结束回退到无裁切,所以基态下页面永远是完整的。',
+      '2026-08-26 补齐:收编时漏了 App.css 里的涟漪那一段,只搬了 transition-tuning.css。后者是给 .page-reveal / .route-leave 改时长的覆写,而 @keyframes 定义在漏掉的那半边 —— 覆写一个不存在的动画,演示台一点画面都没有。ripple-route.css 是补回来的那半边。',
+      '两个旋钮是组件真实的 CSS 变量,不是演示台另造的:--mu-reveal-dur(原项目 0.9s)和 --ease-out 的贝塞尔(原项目 cubic-bezier(0.22, 1, 0.36, 1))。',
+      'transitionNav.js 是编排层:记指针落点当圆心、决定挂哪个 class、克隆哪一层。同目录的 inkTransition.js 是另一件事 —— 进 /play 那一下的落墨入局,纯色层零克隆,和涟漪不共用代码。',
+    ],
   },
+
   {
     slug: 'aurora-field', cat: 'motion', name: 'aurora-field 极光背景',
     from: 'ripple-site', repo: 'ripple', owner: 'self',
