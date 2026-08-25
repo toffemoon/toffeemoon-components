@@ -1,0 +1,27 @@
+/* 涟漪转场的覆盖层。
+   画面全部由 rippleTransition.js 在 canvas 上画,这里只负责把它铺满、置顶、不挡点击,
+   以及淡出那一下。 */
+
+.mu-ripple {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 1;
+}
+
+.mu-ripple.is-fading {
+  opacity: 0;
+  /* 和 rippleTransition.js 里的 fadeMs 对齐,改一处要改两处 */
+  transition: opacity 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 开了减少动态效果的人不该被一圈圈水纹晃。
+   js 侧也会提前 return 直接换页,这条是双保险 —— 万一层已经建出来了也不显示。 */
+@media (prefers-reduced-motion: reduce) {
+  .mu-ripple {
+    display: none;
+  }
+}

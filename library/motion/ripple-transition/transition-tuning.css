@@ -36,29 +36,10 @@ html.mu-nav-tab .page-reveal {
   animation: mu-tab-in 0.24s var(--ease-out);
 }
 
-/* 落墨入局(lib/inkTransition.js):一滴 stage 暖夜底色从点击点涨圆盖屏,
-   /play 在墨下挂载,墨层再淡出。纯色层零克隆,clip-path 走合成器。
-   颜色 = tokens --stage-bg(写死避免转场中途主题翻转把墨染色)。 */
-.mu-ink {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  background: #221c16;
-  clip-path: circle(0 at var(--ix, 50%) var(--iy, 80%));
-  animation: mu-ink-in 0.48s var(--ease-out) forwards;
-}
-@keyframes mu-ink-in {
-  to {
-    clip-path: circle(150vmax at var(--ix, 50%) var(--iy, 80%));
-  }
-}
-.mu-ink.is-fading {
-  opacity: 0;
-  transition: opacity 0.3s var(--ease-out);
-}
+/* 涟漪入局那一层的样式在同目录的 ripple-transition.css,
+   由 rippleTransition.js 建 canvas、逐帧画圈。这里只留路由转场本身的时长调优。 */
 
-/* 落墨 →「推演中…」的衔接:墨散进夜里,在等待指示前留一粒朱砂随呼吸明暗——
+/* 转场 →「推演中…」的衔接:水纹散进夜里,在等待指示前留一粒朱砂随呼吸明暗——
    等待有了心跳,也有了出处(那滴墨没消失,是在替你研墨)。
    纯 CSS 挂在 pending 态上:首回合一到,React 撤掉指示器,墨点自然消失,零同步成本;
    之后每个回合的「推演中…」也带同一粒墨点,等待语言全程一致。 */
@@ -89,9 +70,6 @@ html.mu-nav-tab .page-reveal {
   html.mu-nav-tab .page-reveal,
   html .page-reveal {
     animation: none;
-  }
-  .mu-ink {
-    display: none;
   }
   .story-pending::before {
     animation: none;
