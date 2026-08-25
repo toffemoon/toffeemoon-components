@@ -570,7 +570,6 @@ a { color: inherit; text-decoration: none; }
 }
 .detail-desc {
   color: var(--fg-muted);
-  max-width: var(--measure);
   line-height: var(--lh-prose);
   margin: 0 0 20px;
 }
@@ -579,7 +578,8 @@ a { color: inherit; text-decoration: none; }
    和上面的 .detail-desc 共用 --measure —— 原来那一排 auto-fit 横铺到 1600px,
    旁边的正文却锁在 34em,两个宽度并排看就是散的,文字显得莫名其妙地早换行。 */
 .blocks {
-  max-width: var(--measure);
+  /* 跟着窗口走,不再钉死在 --measure 上。
+     长文本的可读性交给下面 .notes 的分栏去保,不靠掐宽度。 */
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -623,7 +623,16 @@ a { color: inherit; text-decoration: none; }
   padding: 0;
   margin: 0;
   list-style: none;
+  /* 栏宽而不是栏数:窗口宽就多开一栏,每行的汉字数始终不变。
+     容器拉满 + 单栏的话,2000px 下每行会到一百多字,比钉死在 640 更难读。 */
+  /* 栏宽取 26em 而不是 --measure:column-width 是「最小值」,栏会撑满剩余空间。
+     用 40em 的话要容器 ≥1324px 才肯开第二栏,1440 和 1600 全卡在单栏,
+     每行涨到 65-75 个汉字,比钉死在 640 还难读。26em 让第二栏在 876px 就出现,
+     实测 812-1616 全区间每行稳定在 32-48 字。 */
+  columns: 26em;
+  column-gap: 44px;
 }
+.notes li { break-inside: avoid; }
 .notes li {
   color: var(--fg-muted);
   margin-bottom: 8px;
