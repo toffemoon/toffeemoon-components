@@ -32,6 +32,18 @@ function useFitFrame(url) {
       return // 万一变成跨源就算了,保持初值
     }
     if (!doc?.body) return
+    // 演示台可以自己钉死框高:<html data-fit="600">。
+    // 「按内容自动撑高」对用 vh 排版的演示台是个正反馈 —— 框越高 vh 越大、内容越高、
+    // 框再长高,一路顶到上限(滚动进度那一件就这么变成 1250px 高的空框,
+    // 里面 4817px 的文档只露出顶上一小片)。
+    // 那一件又必须让文档真的能滚(组件读的是 window 滚动,不能改成内层容器),
+    // 所以给它一条自己说了算的路。
+    const want = Number(doc.documentElement.dataset.fit)
+    if (Number.isFinite(want) && want > 0) {
+      const px = Math.round(Math.min(Math.max(want, FIT_MIN), FIT_MAX))
+      if (Math.abs(px - f.clientHeight) > 2) f.style.height = px + 'px'
+      return
+    }
     const win = doc.defaultView
     let h = doc.documentElement.scrollHeight
     for (const el of doc.querySelectorAll('body *')) {
@@ -165,7 +177,9 @@ export default function Detail() {
             </a>
           </div>
           <div className="frame-wrap">
-            <iframe ref={frameRef} src={url} title={c.name} loading="lazy" scrolling="no" />
+            {/* 不写 scrolling="no" —— demo.css 里 body{overflow:hidden} 已经挡住了默认的
+                文档滚动;而滚动进度那一件需要文档真的能滚,scrolling="no" 会把它一起封死。 */}
+            <iframe ref={frameRef} src={url} title={c.name} loading="lazy" />
           </div>
           <div className="frame-note">
             {isDemo

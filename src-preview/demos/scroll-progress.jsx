@@ -104,10 +104,23 @@ function Page() {
     body.style.height = 'auto'
     body.style.overflow = 'visible'
     if (stage) stage.style.height = 'auto'
+
+    // 跟外面的详情页打两个招呼(两个都是 demo 侧的约定,见 Detail.jsx / demo.css):
+    // ① data-fit —— 别按内容自动撑高,钉死 600。
+    //    这个演示台用 vh 排版又必须让文档能滚,自动撑高会变成正反馈:
+    //    框越高 → vh 越大 → 内容越高 → 框再长高,一路顶到上限,
+    //    结果是一个 1250px 高的框里露出 4817px 文档的顶上一小片,又大又空。
+    // ② data-scrollbar —— 把滚动条放出来。
+    //    别处藏滚动条是对的,但这一件「能滚」就是它要演的东西,那条杠是主角之一。
+    de.dataset.fit = '600'
+    de.dataset.scrollbar = 'show'
+
     return () => {
       saved.forEach(([el, css]) => {
         el.style.cssText = css
       })
+      delete de.dataset.fit
+      delete de.dataset.scrollbar
       window.scrollTo(0, 0)
     }
   }, [])
@@ -275,12 +288,13 @@ function Page() {
       </div>
 
       <RippleStage pad={false} scroll={false} height="auto">
-        <div style={{ padding: '26vh 8% 24vh', maxWidth: 720 }}>
+        {/* 居中而不是靠左:左上角那块读数面板是 fixed 的,靠左排的话正文会从它底下穿过去 */}
+          <div style={{ padding: '64px 8% 96px', maxWidth: 640, margin: '0 auto' }}>
           <div className="lbl" style={{ textAlign: 'left', marginBottom: 10 }}>
             ripple · 异常检测手记 / {page}
           </div>
           {SECTIONS.map(([h, p]) => (
-            <section key={h} style={{ minHeight: '36vh', marginBottom: 24 }}>
+            <section key={h} style={{ minHeight: 148, marginBottom: 20 }}>
               <h3
                 style={{
                   margin: '0 0 10px',
@@ -307,7 +321,7 @@ function Page() {
             </section>
           ))}
           {/* scroll-margin-top 是给 ScrollManager 的校正用的,见组件注释 */}
-          <section id="endnote" style={{ scrollMarginTop: 96, minHeight: '30vh' }}>
+          <section id="endnote" style={{ scrollMarginTop: 96, minHeight: 160 }}>
             <h3
               style={{
                 margin: '0 0 10px',

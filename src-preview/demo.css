@@ -10,6 +10,32 @@
 * { scrollbar-width: none; }
 *::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
+/* 但有的演示台「能滚」本身就是要演的东西(滚动进度那一件),
+   那条滚动条是它的主角之一,藏掉等于把话说一半。
+   演示台自己挂 <html data-scrollbar="show"> 就放出来。 */
+html[data-scrollbar='show'],
+html[data-scrollbar='show'] * {
+  scrollbar-width: thin;
+  scrollbar-color: #3a4a52 transparent;
+}
+html[data-scrollbar='show']::-webkit-scrollbar,
+html[data-scrollbar='show'] *::-webkit-scrollbar {
+  display: block;
+  width: 10px;
+  height: 10px;
+}
+html[data-scrollbar='show']::-webkit-scrollbar-thumb,
+html[data-scrollbar='show'] *::-webkit-scrollbar-thumb {
+  background: #3a4a52;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+html[data-scrollbar='show']::-webkit-scrollbar-track,
+html[data-scrollbar='show'] *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 html, body, #stage { height: 100%; margin: 0; }
 
 body {
