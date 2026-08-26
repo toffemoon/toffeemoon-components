@@ -339,12 +339,6 @@ export const COMPONENTS = [
     desc: '移动端底部导航壳 + ResumeBar 续读条 + 路由表 nav.js。',
   },
   {
-    slug: 'yuqin-navbar', cat: 'nav', name: 'Yuqin 导航栏与页脚',
-    from: 'YUQIN', repo: 'yuqin', owner: 'self',
-    deps: [], preview: null,
-    desc: '编辑感导航栏(含中英切换)+ 页脚。配套 Persona-5 斜切转场:620ms 焦糖色扫过 + 亚 5% 闪白,滚动错开 220ms 落在转场中段。',
-  },
-  {
     slug: 'dock', cat: 'nav', name: 'Dock 停靠栏',
     from: 'AI互动故事', repo: 'aistory', owner: 'adapted', source: 'React Bits',
     deps: ['motion'], preview: null,
@@ -373,12 +367,6 @@ export const COMPONENTS = [
     from: 'ripple-site', repo: 'ripple', owner: 'adapted', source: 'React Bits Pro',
     deps: ['motion'], preview: null,
     desc: 'React Bits Pro 的 block 起手,按 Ripple 改造。229 行。',
-  },
-  {
-    slug: 'footer-1', cat: 'nav', name: 'footer-1',
-    from: 'ripple-site', repo: 'ripple', owner: 'adapted', source: 'React Bits Pro',
-    deps: ['motion', 'react-router-dom'], preview: null,
-    desc: 'React Bits Pro block,按 Ripple 改造。',
   },
 
   // ───────────────────────────── 文字动效 ─────────────────────────────

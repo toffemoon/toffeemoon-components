@@ -13,5 +13,7 @@ ripple-site 的组件用 `@/lib/...`、`@/content/...`、`@/components/...` 这�
 其余 `@/components/*`(ripple-logo-mark、phone-3d、simple-graph、app-store-badge …)由 vite.config.js 里的
 逐条 alias 指回分类目录 —— 那些本来就是从 ripple-site 收来的同一份文件,不用再复制一次。
 
-**注意**:ripple-site 的组件吃 Tailwind 4,这个库没装 Tailwind。所以 `block/` 和
-`nav/navigation-12`、`nav/footer-1` 目前只能看源码,搭演示台之前得先把 Tailwind 引进预览入口。
+**注意**:ripple-site 的组件吃 Tailwind 4。这句以前写的是「这个库没装 Tailwind,所以只能看源码」——
+已经不对了:`@tailwindcss/vite` 早接进来了(只处理写了 `@import "tailwindcss"` 的 CSS,
+全库只有 `library/token/ripple/index.css` 是),`block/` 那批和 `nav/navigation-12` 都有能跑的演示台。
+(`nav/footer-1` 2026-08-26 已删。)
