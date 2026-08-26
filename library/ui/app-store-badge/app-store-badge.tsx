@@ -1,3 +1,7 @@
+// 2026-08-26 起不再作为独立组件收录(目录里已摘掉这一条)。
+// 文件保留是因为 4 个 block 组件通过 vite.config.js 的
+// `@/components/ui/app-store-badge` 别名 import 它:
+// hero-21 / waitlist-6 / features-6 / feature-showcase。删了那四个演示台会全炸。
 import { FOCUS_RING } from "@/lib/motion";
 
 /** Ripple Health AI · 2026-07-14 上架 · 免费 · min iOS 18 */

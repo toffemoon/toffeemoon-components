@@ -256,12 +256,7 @@ export const COMPONENTS = [
     deps: [], preview: null,
     desc: '固定全屏覆盖的详情弹层,放在轮播外用不会被卡片的 transform 顶歪。',
   },
-  {
-    slug: 'image-crop-field', cat: 'ui', name: 'ImageCropField 裁图字段',
-    from: 'AI互动故事', repo: 'aistory', owner: 'self',
-    deps: ['react-easy-crop'], preview: null,
-    desc: '表单里的图片上传 + 裁剪字段,配套 image.js(File → dataURL、裁剪导出)。',
-  },
+
   {
     slug: 'flip-book', cat: 'ui', name: '翻页书',
     from: '翻页书', repo: 'flipbook', owner: 'self',
@@ -284,49 +279,23 @@ export const COMPONENTS = [
     desc: '不用 WebGL 的横排卡片轮播:RAF 平滑惯性滚动(lerp 逼近 target),卡片随滚动速度起微浪,静止则平。',
     notes: ['自己写的复刻 —— 目标是 React Bits CircularGallery(bend=0)的观感,但用 DOM 实现,好保留项目自己的 <Card>。'],
   },
-  {
-    slug: 'story-hero', cat: 'ui', name: 'StoryHero',
-    from: 'AI互动故事', repo: 'aistory', owner: 'self',
-    deps: [], preview: null,
-    desc: '故事详情页头图区,组合 Card / Tag / Badge / CardCarousel。',
-  },
-  {
-    slug: 'showcase-grid', cat: 'ui', name: 'ShowcaseGrid 作品网格',
-    from: 'AI互动故事', repo: 'aistory', owner: 'self',
-    deps: ['motion', 'lucide-react'], preview: null,
-    desc: '探索页的作品卡网格,带进出场动画。',
-  },
+
+
   {
     slug: 'simple-graph', cat: 'ui', name: 'simple-graph 可交互折线图',
     from: 'ripple-site', repo: 'ripple', owner: 'self',
     deps: ['motion'], preview: null,
     desc: '563 行的自绘折线图,带 hover 读数、区间高亮、进场绘制动画。没用图表库。',
   },
-  {
-    slug: 'comparison-strip', cat: 'ui', name: 'comparison-strip 对比条',
-    from: 'ripple-site', repo: 'ripple', owner: 'self',
-    deps: ['motion'], preview: null,
-    desc: '左右对比的横条,滚动进入视口时展开。',
-  },
-  {
-    slug: 'phone-journey', cat: 'ui', name: 'phone-journey 手机演示动线',
-    from: 'ripple-site', repo: 'ripple', owner: 'self',
-    deps: ['motion'], preview: null,
-    desc: '629 行,整个 ripple-site 最大的一件:手机内的操作流程按滚动逐步演示,配 webm 视频段。',
-  },
+
+
   {
     slug: 'ripple-logo-mark', cat: 'ui', name: 'Ripple logo 动画 mark',
     from: 'ripple-site', repo: 'ripple', owner: 'self',
     deps: [], preview: null,
     desc: 'SVG 描边生长 + 填充动画的 logo,含深色变体(navy → 月白,teal → 品牌色,coral 星点保留)。附静态版 ripple-mark。',
   },
-  {
-    slug: 'app-store-badge', cat: 'ui', name: 'App Store 徽章',
-    from: 'ripple-site', repo: 'ripple', owner: 'self',
-    deps: [], preview: null,
-    desc: 'Apple marketingtools 官方 artwork 的正确用法封装。',
-    notes: ['经验:自绘 teal 版被四个评审 agent 一致点名是全站最大的「山寨感」来源。别自绘,用官方 svg。'],
-  },
+
   {
     slug: 'yuqin-cards', cat: 'ui', name: 'Yuqin 编辑感卡片组(6 件)',
     from: 'YUQIN', repo: 'yuqin', owner: 'self',
