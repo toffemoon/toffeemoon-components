@@ -32,6 +32,22 @@ function useFitFrame(url) {
       return // 万一变成跨源就算了,保持初值
     }
     if (!doc?.body) return
+    // 换 demo 时**别拿还没换掉的那个文档量**(2026-08-26)。
+    //
+    // 预览是 preview.html#/<slug>:换组件只改 hash,iframe 不重新加载,
+    // 里面靠 hashchange 把上一个 demo 换下来。而这个 hook 在 url 一变就跑一次 fit(),
+    // 那一刻文档里挂的还是上一个 —— 量到的是上一个的高度,写进 iframe。
+    // 接着新 demo 挂上,它多半是 height:100% 的(.stage 就是),
+    // 于是「文档高度 = 框高」恒成立,和新值只差几像素,进不了下面 8px 的写入阈值,
+    // 那个不属于它的高度就赖着不走了。
+    // 实测:先看 dock(723)再看 navigation-12,后者本该 684,结果也是 723。
+    //
+    // 判据不能用 location.hash —— hash 是在 React 换 demo 之前就变的,对不上时序。
+    // 用 src-preview/main.jsx 在 commit 后写的 <html data-demo>:
+    // 它一变,就说明上一个已经卸干净了。对不上就先不量,
+    // 等 ResizeObserver / 后面几拍定时器再来。
+    const wantSlug = decodeURIComponent(url.split('#/')[1] || '').trim()
+    if (wantSlug && doc.documentElement.dataset.demo !== wantSlug) return
     // 演示台可以自己钉死框高:<html data-fit="600">。
     // 「按内容自动撑高」对用 vh 排版的演示台是个正反馈 —— 框越高 vh 越大、内容越高、
     // 框再长高,一路顶到上限(滚动进度那一件就这么变成 1250px 高的空框,
@@ -55,7 +71,7 @@ function useFitFrame(url) {
     const next = Math.round(Math.min(Math.max(h + 6, FIT_MIN), FIT_MAX))
     // 只在差得明显时才写,免得和 iframe 自身的高度变化互相追着跑
     if (Math.abs(next - f.clientHeight) > 8) f.style.height = next + 'px'
-  }, [])
+  }, [url])
 
   useEffect(() => {
     const f = ref.current

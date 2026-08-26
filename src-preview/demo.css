@@ -7,22 +7,26 @@
 /* 演示台是「展示」不是「阅读」,右边挂一条滚动条很出戏。
    这里只藏掉滚动条的样子,滚轮和触控板照常能滚 —— 真要看全的走「新窗口打开」。
    外面的详情页会按内容把 iframe 撑高,大部分演示台其实根本滚不动。 */
-* { scrollbar-width: none; }
-*::-webkit-scrollbar { width: 0; height: 0; display: none; }
+/* !important 不是偷懒:muyan 的 base.css 里也有一条 `* { scrollbar-width: thin }`,
+   而它是 demo 自己 import 的、排在这个文件后面 —— 同为 `*` 的特指度,后来者赢。
+   于是凡是套了 MuyanStage 又有内层滚动容器的演示台,右边都会挂出一条 11px 的灰杠。
+   加权重把这条钉死,下面 data-scrollbar='show' 那条特指度更高,照样能把滚动条放回来。 */
+* { scrollbar-width: none !important; }
+*::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
 
 /* 但有的演示台「能滚」本身就是要演的东西(滚动进度那一件),
    那条滚动条是它的主角之一,藏掉等于把话说一半。
    演示台自己挂 <html data-scrollbar="show"> 就放出来。 */
 html[data-scrollbar='show'],
 html[data-scrollbar='show'] * {
-  scrollbar-width: thin;
+  scrollbar-width: thin !important;
   scrollbar-color: #3a4a52 transparent;
 }
 html[data-scrollbar='show']::-webkit-scrollbar,
 html[data-scrollbar='show'] *::-webkit-scrollbar {
-  display: block;
-  width: 10px;
-  height: 10px;
+  display: block !important;
+  width: 10px !important;
+  height: 10px !important;
 }
 html[data-scrollbar='show']::-webkit-scrollbar-thumb,
 html[data-scrollbar='show'] *::-webkit-scrollbar-thumb {
