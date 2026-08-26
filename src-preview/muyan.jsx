@@ -25,49 +25,57 @@ export function MuyanStage({ children, theme = 'paper', scroll = false, top = fa
 
 // CardModel 的形状见 library/ui/card/cardModel.js 顶部注释:
 // { id, kind, title, cover, blurb, badge:{label,tone}, tags:[], meta:{}, note }
+//
+// 2026-08-26:内容换成中性示例,不再用任何具体项目的设定 / 人名 / 作者名。
+// kind 必须留在 story | character | world | player —— Card.jsx 拿它取书脊色
+// (--spine-{kind})和 .kind-{kind} 类,换成别的值卡片会掉成默认色。
+// 两张有封面 + 两张没有,是刻意的:没封面那条走的是「书脊占位 + 描边框」另一条分支,
+// 都留着才看得出这组件封面缺失时不会露白底。
 export const MODELS = [
   {
-    id: 'cat-cafe',
+    id: 'sample-road',
     kind: 'story',
-    title: '猫与咖啡馆',
-    cover: '/home/tangmu01.png',
-    blurb: '你推开一扇总在下雨的门。店主记得每位客人的口味,却记不住自己的名字。',
-    badge: { label: '完整故事 · 可直接玩', tone: 'pine' },
-    tags: ['治愈', '日常', '轻悬疑'],
-    meta: { characters: 3, author: '太妃月', uploader: '太妃月', typeLabel: '官方', useCount: 1284 },
+    title: '长路',
+    cover: '/flip-book/photo-03.jpg',
+    blurb: '一条穿过赤色丘陵的公路。天亮前只遇见两辆车,后来连车也没有了。',
+    badge: { label: '完整故事', tone: 'pine' },
+    tags: ['示例', '长文', '风景'],
+    meta: { characters: 3, author: '示例作者', uploader: '示例作者', typeLabel: '示例', useCount: 1284 },
     note: '',
   },
   {
-    id: 'tangmu',
+    id: 'sample-keeper',
     kind: 'character',
-    title: '糖沐',
-    cover: '/home/seal-muyan.png',
-    blurb: '沐言书坊的店员。话不多,记性好,给熟客多放一颗糖。',
+    title: '渡口的守夜人',
+    cover: '/flip-book/photo-11.jpg',
+    blurb: '守着一座早就没人过的渡口。话少,火生得好,天亮之前不睡。',
     badge: { label: '角色卡', tone: 'gilt' },
-    tags: ['店员', '温和'],
-    meta: { uploader: '太妃月', useCount: 903 },
+    tags: ['示例', '沉默'],
+    meta: { uploader: '示例作者', useCount: 903 },
     note: '',
   },
   {
-    id: 'rainy-town',
+    id: 'sample-north',
     kind: 'world',
-    title: '常雨镇',
+    title: '北纬四十度',
     cover: '',
-    blurb: '一座三百天在下雨的小镇。雨停的那天,所有人都会想起点什么。',
+    blurb: '一条横穿大陆的纬线。同一天里,线上有人在收麦,有人在扫雪。',
     badge: { label: '世界书', tone: 'gilt' },
-    tags: ['setting', '群像'],
-    meta: { uploader: '太妃月' },
+    tags: ['示例', '设定'],
+    meta: { uploader: '示例作者' },
     note: '',
   },
   {
-    id: 'you',
+    id: 'sample-traveler',
     kind: 'player',
-    title: '第一次来的客人',
+    title: '同行的人',
     cover: '',
-    blurb: '你不记得自己为什么走进来,但伞是干的。',
+    blurb: '你在半路上车,没说要去哪儿,司机也没问。',
     badge: { label: '演出卡', tone: 'gilt' },
-    tags: ['第一人称'],
-    meta: {},
+    tags: ['示例', '第一人称'],
+    // 四张都给 uploader:卡的底栏「书名 + 作者」两行、只有书名时一行,
+    // 而 .card--shelf 是固定 2:3 —— 少一行,封面就比旁边高一截,四张排在一起看着像没对齐。
+    meta: { uploader: '示例作者' },
     note: '',
   },
 ]

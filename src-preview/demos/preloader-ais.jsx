@@ -94,14 +94,14 @@ export default function Demo() {
             }}
           >
             <p style={{ font: `500 min(3.4vh, 24px)/1.3 var(--font-serif)`, color: 'var(--fg)' }}>
-              常雨镇 · 卷一
+              长路 · 第一节
             </p>
             <div style={{ height: 1, background: 'var(--line)', margin: '5% 0' }} />
             <p style={{ font: `400 min(2.2vh, 15px)/1.9 var(--font-serif)`, color: 'var(--muted)' }}>
-              雨从第三天起就没停过,屋檐下挂了一排水线。
+              公路一直往北,路面被太阳晒得发白。
             </p>
             <p style={{ font: `400 min(2.2vh, 15px)/1.9 var(--font-serif)`, color: 'var(--muted)' }}>
-              店主把最后一盏灯点上,说今天不打烊。
+              天亮前只遇见两辆车,后来连车也没有了。
             </p>
           </div>
 
@@ -126,7 +126,7 @@ export default function Demo() {
               stairsRevealDirection="up"
               bgColor={PAPER}
               textClassName="pre-ais-word"
-              loadingText="沐言书坊 正在铺纸"
+              loadingText="正在铺纸"
               respectReducedMotion
               reducedMotionFallback="fade"
             />

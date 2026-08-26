@@ -3,24 +3,45 @@ import { MuyanStage } from '../muyan.jsx'
 import DepthCard from '../../library/ui/depth-card/depth-card.jsx'
 import '../../library/ui/depth-card/depth-card.css'
 
-// 2026-08-26 重做。旧版打开是一片近乎全黑,量出来帧间变化 0.00% —— 两个病叠在一起:
+// 2026-08-26(二改)。上一轮把「一片黑、量出来 0.00%」修好了,但卡片是写死 300px 宽的
+// 一小块,钉在 1156×560 的框正中 —— 实测填充率 10.9%,九成是空纸。这一轮:
 //
-// ① 卡片没有形体。depth-card.css 全吃沐言的语义 token(--r-card / --shadow-card /
-//    --shadow-pop / --dur-mid / --ease-out),而这些 token 挂在 [data-theme] 上、
-//    不在 :root —— muyan.jsx 顶部就写着这句。旧版没套 MuyanStage,直接裸在一个
-//    背景写死 #141210 的 div 里,于是圆角、投影、过渡全部落空,卡片等于隐形,
-//    只剩两行暗色文字浮在暗底上。套上 MuyanStage 之后 token 才有值。
+// ① 尺寸跟着框走。卡宽 min(540px, 100%),高度直接吃满台子 ——
+//    框宽随窗口变,卡跟着变,不再是「小方块 + 一圈白」。高度那一档见下面 CARD_W。
+// ② 有图才看得见倾斜。纯文字卡转 7° 几乎看不出来,图里的地平线一斜就很明显,
+//    高光扫过水面也才有东西可扫。
+// ③ 文案改准了:这个组件**不做**分层视差 —— 看 depth-card.jsx,它只做两件事,
+//    整卡按指针倾斜(maxRotation 默认 7°,lerp 0.1 逼近)+ 一块 soft-light 高光
+//    跟着指针。旧文案写「内容按层次错开位移」是错的,照着它读会以为组件坏了。
 //
-// ② 没有指针就没有效果。它整个效果由 onMouseMove 驱动 —— 不动鼠标它就是一张静止的卡,
-//    而画廊缩略图盖了 .thumb-veil,根本不可能有指针进来。
-//    所以演示台自己派发 mousemove:沿一条李萨如曲线慢慢走(两个不同频率的正弦,
-//    路径不会周期性地重合,看着不像机器在扫),让分层位移一直在发生。
-//    真人指针一进来就立刻放手 —— 这条纪律和滚动进度那一件一致,不跟用户抢。
+// 下面这段自动驱动是上一轮留下的,原因没变:
+// 它整个效果由 onMouseMove 驱动 —— 不动鼠标它就是一张静止的卡,
+// 而画廊缩略图盖了 .thumb-veil,根本不可能有指针进来。
+// 所以演示台自己派发 mousemove:沿一条李萨如曲线慢慢走(两个不同频率的正弦,
+// 路径不会周期性地重合,看着不像机器在扫),让倾斜和高光一直在发生。
+// 真人指针一进来就立刻放手 —— 这条纪律和滚动进度那一件一致,不跟用户抢。
 //
 // 派发的是真 MouseEvent 且 bubbles:true,所以 React 的合成事件照常收得到,
 // 组件那边完全不知道指针是假的,走的是同一条代码路径。
 
-const CYCLE = 9000 // 一圈的时长。慢一点才看得清分层,快了像抖动
+// 高度不靠算,靠让卡直接吃满台子的净高 —— 这一版是被「两种台子高度不一样」逼出来的:
+//   详情页  iframe 560,MuyanStage 上下各 24 → 净高 512
+//   画廊缩略图  iframe 是卡片的 2.5 倍(实测 728×453)→ 净高只有 405
+// 按 16/9 从宽度算高度,写死一个数必然有一头对不上:540 宽算出来 494 高,详情页装得下,
+// 缩略图上下各切掉约 19px(Codex 复核指出,自己也量过)。
+// 所以改成:卡的高 = 台子的净高(.dc-fit 那两条),图 flex:1 吃掉剩下的,文字块不缩。
+// 两种台子各自撑满,谁也不用迁就谁,也不会被 overflow:hidden 削掉一条。
+// 宽度仍然 min(540, 100%),跟着框宽走。
+//
+// 试过改走 data-fit 把框钉高,撤了 —— 实测两次都把下一个演示台也顶高了(在详情页里
+// 从这一件切到 card,card 的框跟着变成 640)。看着像这么回事:切换时 Detail.jsx 会先
+// 拿还没换掉的旧文档量一次,把钉出来的高度写进 iframe;等新 demo 挂上,它的 height:100%
+// 让文档「刚好等于框」,差值 6px 进不了那边 8px 的写入阈值,于是高度就赖在那儿。
+// 是不是每次都触发没验到(和换 demo 的时序有关,scroll-progress 那件同样用 data-fit
+// 却没复现)。既然不钉也能排下,就别在这一件上冒这个险。
+const CARD_W = 540
+
+const CYCLE = 9000 // 一圈的时长。慢一点才看得清倾斜,快了像抖动
 
 export default function Demo() {
   const hostRef = React.useRef(null)
@@ -83,18 +104,56 @@ export default function Demo() {
 
   return (
     <MuyanStage>
-      <div ref={hostRef}>
-        <DepthCard>
-          <div style={{ padding: '30px 28px', width: 300 }}>
-            <div style={{ fontSize: 12, letterSpacing: '0.18em', color: 'var(--fg-muted)' }}>
-              DEPTH CARD
+      {/* DepthCard 只把 className 透给最外那层 .depth-card-wrapper,里面那层 .depth-card
+          够不着 —— 所以高度用一段选择器往下传,不改组件源码。 */}
+      <style>{`
+        .dc-fit { width: 100%; height: 100%; }
+        .dc-fit .depth-card { height: 100%; }
+      `}</style>
+      <div ref={hostRef} style={{ width: `min(${CARD_W}px, 100%)`, height: '100%' }}>
+        <DepthCard className="dc-fit">
+          {/* 卡面自己是不裁切的,圆角要靠这一层收边 —— 图直接铺到边会露出直角 */}
+          <div
+            style={{
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              borderRadius: 'var(--r-card)',
+              overflow: 'hidden',
+              background: 'var(--panel)',
+            }}
+          >
+            {/* 图吃掉文字块以外的全部高度。min-height:0 是必须的,
+                不然 flex 子项的最小尺寸是内容尺寸,图会把卡撑破。 */}
+            <div style={{ flex: '1 1 auto', minHeight: 0, background: 'var(--sunk, var(--panel))' }}>
+              <img
+                src="/flip-book/photo-09.jpg"
+                alt=""
+                draggable={false}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              />
             </div>
-            <div style={{ fontSize: 19, margin: '10px 0 12px', color: 'var(--fg)' }}>景深卡</div>
-            <div style={{ fontSize: 13, lineHeight: 1.85, color: 'var(--fg-muted)' }}>
-              指针在卡面上的位置决定倾角,内容按层次错开位移,高光跟着指针走。
-            </div>
-            <div style={{ fontSize: 11.5, lineHeight: 1.7, marginTop: 14, color: 'var(--fg-faint, var(--fg-muted))' }}>
-              {driving ? '演示台正在替你移动指针 —— 你一动它就让开。' : '已经交给你了,在卡上移移看。'}
+            <div style={{ flex: 'none', padding: 'clamp(16px, 3.4%, 26px) clamp(18px, 3.6%, 28px)' }}>
+              <div style={{ fontSize: 12, letterSpacing: '0.18em', color: 'var(--fg-muted, var(--muted))' }}>
+                DEPTH CARD
+              </div>
+              <div style={{ fontSize: 'clamp(17px, 1.9vw, 21px)', margin: '10px 0 12px', color: 'var(--fg)' }}>
+                景深卡
+              </div>
+              <div style={{ fontSize: 13, lineHeight: 1.85, color: 'var(--fg-muted, var(--muted))' }}>
+                指针在卡面上的位置决定倾角,最大 7°,靠 lerp 慢慢逼近所以不会跟手抖;
+                一块 soft-light 的暖光跟着指针在卡面上走。
+              </div>
+              <div
+                style={{
+                  fontSize: 11.5,
+                  lineHeight: 1.7,
+                  marginTop: 14,
+                  color: 'var(--fg-faint, var(--fg-muted, var(--muted)))',
+                }}
+              >
+                {driving ? '演示台正在替你移动指针 —— 你一动它就让开。' : '已经交给你了,在卡上移移看。'}
+              </div>
             </div>
           </div>
         </DepthCard>
